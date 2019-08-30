@@ -1,0 +1,11 @@
+cmake_minimum_required(VERSION 3.10)
+
+project(vol)
+
+set(APPLE_CPP_ROOT /Library/Developer/CommandLineTools)
+set(CATCH_BUILD_TESTING ON)
+
+add_compile_options(-std=c++17)
+
+subdirs(src/main src/test)
+
