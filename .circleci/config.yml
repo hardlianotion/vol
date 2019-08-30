@@ -16,7 +16,7 @@ jobs:
           command: 'apt-get update && sudo apt-get install -y cmake'
       - run:
           name: Build CMAKE project
-          command: 'cd build && ls .. && cmake ..' 
+          command: 'mkdir build && cd build && ls .. && cmake ..' 
       - run:
           name: Build binaries
           command: 'cd build && make'
