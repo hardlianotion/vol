@@ -3,7 +3,6 @@ find_package(Catch2 REQUIRED)
 link_directories(
   ${vol_BINARY_DIR}/src/main
   ${vol_BINARY_DIR}/src/test
-  ${APPLE_CPP_ROOT}/usr/lib
   /usr/local/lib
 )
 
