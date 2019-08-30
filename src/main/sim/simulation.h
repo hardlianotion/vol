@@ -26,17 +26,7 @@ namespace vol {
 
     //test generator
     static auto constant(const double level) {
-      struct const_impl {
-        const double level_;
-        //hack constructors to minimise typage.
-        const_impl(std::random_device&): level_(0.0) {}
-        const_impl(const double level): level_(level) {}
-
-        double operator()(const const_impl&) {
-          return level_;
-        }
-      };
-      return create<const_impl, const_impl>(const_impl(level));
+      return [level]() {return level;};
     }
   };
 
