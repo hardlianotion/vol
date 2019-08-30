@@ -17,11 +17,11 @@ jobs:
       - run: 'mkdir build && cd build && pwd'
       - run:
           name: Build CMAKE project
-          command: 'cmake ..'
+          command: 'mkdir build && cd build && cmake ..'
       - run:
           name: Build binaries
-          command: 'make'
+          command: 'cd build && make'
       - run:
           name: run vol tests
-          command: 'src/test/vol-tests'
+          command: 'cd build && src/test/vol-tests'
 
