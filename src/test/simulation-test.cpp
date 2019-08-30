@@ -1,7 +1,7 @@
 #include "catch2/catch.hpp"
 #include "sim/simulation.h"
 
-SCENARIO ("lambdas can be passed to variables.", "[simulation]") {
+SCENARIO ("Simulation pipelines are composed functions.", "[simulation]") {
   WHEN("a lambda is passed to an auto var") {
     auto fn = [](int x) {return x + 1;};
 
