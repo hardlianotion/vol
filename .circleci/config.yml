@@ -7,7 +7,7 @@ jobs:
       - checkout # check out the code in the project directory
       - run:
           name: Installing build tools and deps
-          command: 'utility/install-linux-tools.sh'
+          command: 'mkdir utility && utility/install-linux-tools.sh'
       - run:
           name: Build CMAKE project
           command: 'mkdir build && cd build && ls .. && cmake ..' 
