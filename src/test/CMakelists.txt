@@ -8,6 +8,7 @@ link_directories(
 )
 
 include_directories(
+  ${vol_SOURCE_DIR}/src/main
   ${vol_SOURCE_DIR}/src/test
   ${APPLE_CPP_ROOT}/usr/include
   /usr/local/include
@@ -19,12 +20,10 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 add_executable(
   vol-tests 
    
-  lambdas-test.cpp
-  variant-test.cpp
-  move-test.cpp
-  ptr-test.cpp
+  market-test.cpp
+  simulation-test.cpp
 )
 
-target_link_libraries(vol-tests Catch2::Catch2)
+target_link_libraries(vol-tests Catch2::Catch2 sim market)
 
 

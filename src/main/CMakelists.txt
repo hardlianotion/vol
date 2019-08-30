@@ -15,10 +15,14 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 add_library(
-  vol 
+  market 
    
   market/market.cpp
-  product/product.cpp
+)
+
+add_library(
+  sim
+   
   sim/simulation.cpp
 )
 
@@ -28,6 +32,6 @@ add_executable (
   main.cpp
 )
 
-target_link_libraries(cpp-tests vol)
+target_link_libraries(vol-demo market sim)
 
 
