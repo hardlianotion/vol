@@ -14,10 +14,9 @@ jobs:
       - run:
           name: Install CMAKE
           command: 'apt-get update && sudo apt-get install -y cmake'
-      - run: 'mkdir build && pwd && ls'
       - run:
           name: Build CMAKE project
-          command: 'cd build && cmake /root/project' 
+          command: 'cd build && ls .. && cmake ..' 
       - run:
           name: Build binaries
           command: 'cd build && make'
