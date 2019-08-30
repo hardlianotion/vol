@@ -9,4 +9,14 @@ SCENARIO ("Simulation pipelines are composed functions.", "[simulation]") {
       REQUIRE(fn(1) == 2);
     }
   }
+
+  WHEN("Generator::normal constructs a function.") {
+    auto fn = vol::Generator::normal(1, 1);
+
+    THEN("No two calls to the function are identical") {
+      double first = fn();
+      double second = fn();
+      REQUIRE(first != second);
+    }
+  }
 }
