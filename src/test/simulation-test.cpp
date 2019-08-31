@@ -48,17 +48,27 @@ SCENARIO ("Simulation pipelines are composed functions.", "[simulation]") {
     auto refs = {-0.310661, -0.733208, 0.220453, -1.55703, -0.306272, 
       0.732962, 0.480365, 1.24664, 0.210762, 0.736187};
 
-    std::vector<double> outs;
-//    std::generate_n(outs.end(), 5, norm1);
-//    std::generate_n(outs.end(), 5, lognorm1);
+    std::vector<double> outs1, outs2;
+    std::generate_n(back_inserter(outs1), 5, norm1);
+    std::generate_n(back_inserter(outs1), 5, lognorm1);
+    std::generate_n(back_inserter(outs2), 5, norm2);
+    std::generate_n(back_inserter(outs2), 5, lognorm2);
     
     THEN("the first n draws from the generator are deterministic") {
-//      for (auto [out, ref]: ranges::views::zip(outs, refs)) {
-//        REQUIRE( out == ref );
-//      }
+      for (auto [out1, out2, ref]: ranges::views::zip(outs1, outs2, refs)) {
+        REQUIRE_THAT( out1, Catch::WithinAbs(ref, 1.e-5) );
+        REQUIRE_THAT( out2, Catch::WithinAbs(ref, 1.e-5) );
+      }
     }
 
+    std::generate_n(back_inserter(outs1), 10, norm1);
+    std::generate_n(back_inserter(outs1), 10, lognorm1);
+    std::generate_n(back_inserter(outs2), 10, norm2);
+    std::generate_n(back_inserter(outs2), 10, lognorm2);
     THEN("samples from the seeded generators are the same thereafter.") {
+      for(auto [out1, out2]: ranges::views::zip(outs1, outs2)) {
+        REQUIRE_THAT( out1, Catch::WithinAbs(out2, 1.e-10) );
+      }
     }
   }
 
