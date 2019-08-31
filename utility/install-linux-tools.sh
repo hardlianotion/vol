@@ -16,6 +16,6 @@ cmake --build build/ --target install
 cd ..
 git clone --branch 0.9.0 --depth 1 https://github.com/ericniebler/range-v3.git
 cd range-v3
-cmake -Bbuild -H. -DBUILD_TESTING=OFF
-cmake --target install
+cmake -Bbuild -H. -DBUILD_TESTING=OFF -DRANGE_V3_TESTS=OFF -DRANGE_V3_EXAMPLES=OFF -DRANGE_V3_PERF=OFF -DRANGE_V3_DOCS=OFF -DRANGE_V3_HEADER_CHECKS=OFF
+cmake --build build/ --target install
 
