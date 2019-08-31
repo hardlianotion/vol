@@ -1,4 +1,5 @@
 find_package(Catch2 REQUIRED)
+find_package(range-v3 CONFIG REQUIRED)
 
 link_directories(
   ${vol_BINARY_DIR}/src/main
@@ -12,6 +13,7 @@ include_directories(
   ${APPLE_CPP_ROOT}/usr/include
   /usr/local/include
 )
+
 set(CMAKE_CXX_FLAGS "${CMAKE_C_FLAGS} -std=c++17")
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -23,6 +25,5 @@ add_executable(
   simulation-test.cpp
 )
 
-target_link_libraries(vol-tests Catch2::Catch2 sim market)
-
+target_link_libraries(vol-tests Catch2::Catch2 sim market range-v3)
 
