@@ -14,5 +14,5 @@ cmake --build build/ --target install
 
 #install ranges
 cd ..
-git clone --branch 0.9.0 --depth 1 git@github.com:ericniebler/range-v3.git
+git clone --branch 0.9.0 --depth 1 https://github.com/ericniebler/range-v3.git
 
