@@ -15,9 +15,9 @@ cmake --build build/ --target install
 #install gcem and stats
 git clone --depth 1  https://github.com/kthohr/gcem.git
 git clone --depth 1 https://github.com/kthohr/stats.git
-mkdir include
-mv gcem/include/* ./include
-mv stats/include/* ./include
+
+mv gcem/include/* /usr/local/include
+mv stats/include/* /usr/local/include
 
 #install ranges
 cd ..
