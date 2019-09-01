@@ -55,10 +55,8 @@ SCENARIO ("Simulation pipelines are composed functions.", "[simulation]") {
     std::generate_n(back_inserter(outs2), 5, lognorm2);
     
     THEN("the first n draws from the generator are deterministic") {
-      for (auto [out1, ref]: ranges::views::zip(outs1, refs)) {
+      for (auto [out1, out2, ref]: ranges::views::zip(outs1, outs2, refs)) {
         REQUIRE_THAT( out1, Catch::WithinAbs(ref, 1.e-5) );
-      }
-      for (auto [out2, ref]: ranges::views::zip(outs2, refs)) {
         REQUIRE_THAT( out2, Catch::WithinAbs(ref, 1.e-5) );
       }
     }
