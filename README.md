@@ -2,11 +2,11 @@
 Experiments with volatility options.
 
 ## dependencies
-The library uses:
-* Eric Niebler's range-v3 0.9.0 
-* Catch2 v2.9.2
-* kthohr/stats
-* kthohr/gcem
+The framework depends on:
+*  Eric Niebler's range-v3 0.9.0 
+*  Catch2 v2.9.2
+*  kthohr/stats
+*  kthohr/gcem
 
 ## build
 `cmake ..`
