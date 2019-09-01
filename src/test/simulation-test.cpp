@@ -45,21 +45,27 @@ SCENARIO ("Simulation pipelines are composed functions.", "[simulation]") {
     auto lognorm2 = vol::generator::lognormal(0.0, 1.0, seeds);
     
     //first 5 are normal, secodn 5 are lonormal
-    auto refs = {-0.310661, -0.733208, 0.220453, -1.55703, -0.306272, 
+    std::vector<double> refs = {-0.310661, -0.733208, 0.220453, -1.55703, -0.306272, 
       0.732962, 0.480365, 1.24664, 0.210762, 0.736187};
-
+    std::vector<double> refAlts = {-0.733208, -0.310661, -1.55703, 0.220453, 
+      0.212833, 0.480365, 0.732962, 0.210762, 1.24664, 1.23718};
+    
     std::vector<double> outs1, outs2;
     std::generate_n(back_inserter(outs1), 5, norm1);
     std::generate_n(back_inserter(outs1), 5, lognorm1);
     std::generate_n(back_inserter(outs2), 5, norm2);
     std::generate_n(back_inserter(outs2), 5, lognorm2);
     
-    std::for_each(outs1.begin(), outs1.end(), [](double x) {std::cout << x << ", ";});
-    std::cout << std::endl;
-    THEN("the first n draws from the generator are deterministic") {
-      for (auto [out1, out2, ref]: ranges::views::zip(refs, refs, refs)) {
-        REQUIRE_THAT( out1, Catch::WithinAbs(ref, 1.e-5) );
-        REQUIRE_THAT( out2, Catch::WithinAbs(ref, 1.e-5) );
+    // FIXME - nasty hack
+    if(fabs(outs1[0] - refs[0]) < 1.e-5) {
+      THEN("the first n draws from the generator are deterministic") {
+        REQUIRE_THAT( outs1, Catch::Approx(refs).epsilon(1.e-5) );
+        REQUIRE_THAT( outs2, Catch::Approx(refs).epsilon(1.e-5) );
+      }
+    } else {
+      THEN("the first n draws from the generator are deterministic") {
+        REQUIRE_THAT( outs1, Catch::Approx(refAlts).epsilon(1.e-5) );
+        REQUIRE_THAT( outs2, Catch::Approx(refAlts).epsilon(1.e-5) );
       }
     }
 
@@ -69,9 +75,7 @@ SCENARIO ("Simulation pipelines are composed functions.", "[simulation]") {
     std::generate_n(back_inserter(outs2), 10, lognorm2);
     
     THEN("samples from the seeded generators are the same thereafter.") {
-      for(auto [out1, out2]: ranges::views::zip(outs1, outs2)) {
-        REQUIRE_THAT( out1, Catch::WithinAbs(out2, 1.e-10) );
-      }
+      REQUIRE_THAT( outs1, Catch::Approx(outs2).epsilon(1.e-10) );
     }
   }
 
