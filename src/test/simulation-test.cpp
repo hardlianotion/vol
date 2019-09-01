@@ -1,8 +1,6 @@
 #include <iostream>
-#include <range/v3/view/zip.hpp>
 
 #include "catch2/catch.hpp"
-
 #include "sim/simulation.h"
 
 
@@ -78,5 +76,5 @@ SCENARIO ("Simulation pipelines are composed functions.", "[simulation]") {
       REQUIRE_THAT( outs1, Catch::Approx(outs2).epsilon(1.e-10) );
     }
   }
-
 }
+

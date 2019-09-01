@@ -13,6 +13,8 @@ endif()
 
 project(vol)
 
+find_package(range-v3 CONFIG REQUIRED)
+
 set(APPLE_CPP_ROOT /Library/Developer/CommandLineTools)
 set(CATCH_BUILD_TESTING ON)
 

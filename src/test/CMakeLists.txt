@@ -1,5 +1,4 @@
 find_package(Catch2 REQUIRED)
-find_package(range-v3 CONFIG REQUIRED)
 
 link_directories(
   ${vol_BINARY_DIR}/src/main
@@ -10,7 +9,6 @@ link_directories(
 include_directories(
   ${vol_SOURCE_DIR}/src/main
   ${vol_SOURCE_DIR}/src/test
-  ${APPLE_CPP_ROOT}/usr/include
   /usr/local/include
 )
 

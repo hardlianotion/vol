@@ -3,6 +3,8 @@
 #include <random>
 #include <tuple>
 
+#include <range/v3/all.hpp>
+
 
 namespace vol {  
   
@@ -109,6 +111,124 @@ namespace vol {
       auto vol = [sigma](double s, double) {return sigma;};
       auto gen = bm();
       return euler(vol, drift, gen, dt);
+    }
+  }
+
+  namespace stats {
+
+    typedef std::tuple<size_t, double, double> summary_type;
+
+    template<typename forward_iterator>
+    summary_type&& sample_sums(
+      const forward_iterator& begin, const forward_iterator& end
+    ) {
+      using namespace std;
+      size_t size = distance(begin, end);
+
+      return std::accumulate(
+        begin, 
+        end, 
+        {size, 0., 0.}, 
+        [] (auto accum, auto next) -> summary_type {
+          return {
+            get<0>(accum),
+            get<1>(accum) + next, 
+            get<2>(accum) + next*next
+          };});
+    }
+
+    /**
+     * moment calculation for paired sample.  It is the responsibility of the user 
+     * to pair the sample.
+     * returns size, sx, sy, sxx, sxy, syy.
+     */
+    //FIXME - hack.  want any qualifying container iterator
+    typedef std::tuple<\
+      size_t, double, double, 
+      double, double, double> summary_type_2d;
+
+    template <typename forward_iterator>
+    summary_type_2d&& sample_sums(
+      const forward_iterator& begin, const forward_iterator& end
+    ) {
+      using namespace std;
+      size_t size = distance(begin, end);
+      return std::accumulate(
+        begin, 
+        end, 
+        {size, 0., 0., 0., 0., 0.}, 
+        [](auto accum, auto next) -> summary_type_2d {
+          return {
+            get<0>(accum),
+            get<1>(accum) + next.first, 
+            get<2>(accum) + next.second,
+            get<3>(accum) + next.first*next.first, 
+            get<4>(accum) + next.first*next.second, 
+            get<5>(accum) + next.second*next.second, 
+          };});
+    }
+
+    template<typename forward_iterator>
+    summary_type&& variance(
+      const forward_iterator& begin, const forward_iterator& end
+    ) {
+      using namespace std;
+      auto sums = sample_sums(begin, end);
+      double size = get<0>(sums);
+      double scale = 1. / (get<0>(sums) - 1.);
+      return {
+        size,
+        get<1>(sums) / size,
+        scale * (get<2>(sums) - get<1>(sums) * get<1>(sums) / size), 
+      };
+    }
+    
+    /**
+     * 2-dim second-order summary - xbar, ybar, varx, covxy, vary
+     */
+    template<typename forward_iterator>
+    summary_type_2d&& covariance(
+      const forward_iterator& begin, const forward_iterator& end
+    ) {
+      using namespace std;
+      auto sums = sample_sums(begin, end);
+      double size = get<0>(sums);
+      double scale = 1. / (get<0>(sums) - 1.);
+      return {
+        size,
+        get<1>(sums) / size,
+        get<2>(sums) / size,
+        scale * (get<3>(sums) - get<1>(sums) * get<1>(sums) / size), 
+        scale * (get<4>(sums) - get<1>(sums) * get<2>(sums) / size), 
+        scale * (get<5>(sums) - get<2>(sums) * get<2>(sums) / size)};
+    }
+
+    /**
+     * control variate - returns mean and variance.
+     */
+    template<typename proc_type>
+    std::tuple<double, double> summary(
+      proc_type& proc, proc_type& control, double control_mean, size_t size
+    ) {
+      using namespace std;
+      //using namespace ranges;
+
+      vector<double> sample, ctrl_sample;
+
+      generate_n(back_inserter(sample), size, proc);
+      generate_n(back_inserter(ctrl_sample), size, control);
+
+      //FIXME - we can do better than this when we try to 
+      //employ range more ambitiously.
+      auto p_sample = ranges::views::zip(sample, ctrl_sample);
+      auto cov = covariance(p_sample.begin(), p_sample.end());
+
+      double corr = get<3>(cov) / get<4>(cov);
+      auto control_sample = p_sample 
+        | ranges::views::transform([corr, control_mean](auto item) {
+            return get<0>(item) - corr * (get<1>(item) - control_mean);});
+      
+      return variance(control_sample.begin(), control_sample.end());
     }
   }
 }
