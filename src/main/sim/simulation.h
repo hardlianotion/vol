@@ -53,8 +53,9 @@ namespace vol {
     /**
      * white noise generator.
      **/
-    auto brownian() {
-      return [](double t) {return generator::normal(0.,sqrt(t));};
+    auto bm() {
+      auto impl = generator::normal(0., 1.);
+      return [impl](double t) mutable {return sqrt(t) * impl();};
     }
     
     /**
@@ -89,11 +90,25 @@ namespace vol {
     auto euler(
       const vol_type& vol, 
       const drift_type& drift, 
-      const gen_type& gen, 
+      gen_type& gen, 
       double dt
     ) {
       return [vol, drift, gen, dt]
-        (double s, double t) -> std::tuple<double, double> {return {s + vol(s, t) * gen(dt) + drift(s, t) * dt, t + dt};};
+        (double s, double t) mutable -> std::tuple<double, double> {return {s + vol(s, t) * gen(dt) + drift(s, t) * dt, t + dt};};
+    }
+
+    auto cir(double lambda, double mu, double sigma, double dt) {
+      auto drift = [lambda, mu](double s, double) {return lambda*(mu - s);};
+      auto vol = [sigma](double s, double) {return sigma*sqrt(s);};
+      auto gen = bm();
+      return euler(vol, drift, gen, dt);
+    }
+
+    auto ou(double lambda, double mu, double sigma, double dt) {
+      auto drift = [lambda, mu](double s, double) {return lambda*(mu - s);};
+      auto vol = [sigma](double s, double) {return sigma;};
+      auto gen = bm();
+      return euler(vol, drift, gen, dt);
     }
   }
 }
