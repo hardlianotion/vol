@@ -90,8 +90,8 @@ namespace vol {
       const gen_type& gen, 
       double dt
     ) {
-      return [vol, drift, gen, dt](double s, double t) -> std::tuple<double, double>
-          {return {s + vol(s, t) * gen(dt) + drift(s, t) * dt, t + dt};};
+      return [vol, drift, gen, dt]
+        (double s, double t) {return std::make_tuple(s + vol(s, t) * gen(dt) + drift(s, t) * dt, t + dt);};
     }
   }
 }
