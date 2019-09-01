@@ -59,7 +59,13 @@ namespace vol {
       auto impl = generator::normal(0., 1.);
       return [impl](double t) mutable {return sqrt(t) * impl();};
     }
-    
+ 
+    auto lognorm(double mu, double sigma) {
+      auto impl = generator::normal(0., 1.);
+      return [mu, sigma, impl](double t) mutable {
+        return exp((sigma * sqrt(t) + mu) * impl());};
+    } 
+
     /**
      * this generator might be useful in formal testing.
      */

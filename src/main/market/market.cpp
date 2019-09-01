@@ -2,7 +2,7 @@
 #include "market.h"
 
 namespace vol {
-  namespace market {
+  namespace market::vanilla {
    
     using namespace stats;
 
@@ -12,8 +12,10 @@ namespace vol {
       switch (o) {
         case option::CALL:
           return exp(-r*t)*(f*pnorm(d1, 0., 1.) - k*pnorm(d2, 0., 1.));
+          break;
         case option::PUT:
           return exp(-r*t)*(k*pnorm(-d2, 0., 1.) - f*pnorm(-d1, 0., 1.));
+          break;
         default:
           return std::numeric_limits<double>::quiet_NaN();
       }
@@ -24,8 +26,10 @@ namespace vol {
       switch(o) {
         case option::CALL:
           return exp(-r*t)*stats::pnorm(d1, 0., 1.);
+          break;
         case option::PUT:
           return exp(-r*t)*stats::pnorm(d1, 0., 1.) - 1.;
+          break;
         default:
           return std::numeric_limits<double>::quiet_NaN();
       }
@@ -46,9 +50,11 @@ namespace vol {
         case option::CALL:
           return -(r + v/(2.*sqrt(t)))*f*delta(o, r, f, t, v, k) 
             + r*k*exp(-r*t)*pnorm(d2, 0., 1.);
+          break;
         case option::PUT:
           return -v*f*delta(o, r, f, t, v, k)/(2*sqrt(t)) 
             - r*f*exp(-r*t)*pnorm(-d1, 0., 1.) + r*k*exp(-r*t)*pnorm(-d2, 0., 1.);  
+          break;
         default:
           return std::numeric_limits<double>::quiet_NaN();
       }

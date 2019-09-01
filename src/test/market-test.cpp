@@ -4,7 +4,8 @@
 #include "market/market.h"
 
 SCENARIO ("Option contracts price respect invariants.", "[market]") {
-  using namespace vol::market;
+  using namespace vol::market::vanilla;
+  using namespace vol;
   
   double k = 100.;
   double itmf = 105.;
