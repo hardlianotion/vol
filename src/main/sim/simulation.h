@@ -93,7 +93,7 @@ namespace vol {
       double dt
     ) {
       return [vol, drift, gen, dt]
-        (double s, double t) {return std::make_tuple(s + vol(s, t) * gen(dt) + drift(s, t) * dt, t + dt);};
+        (double s, double t) -> std::tuple<double, double> {return {s + vol(s, t) * gen(dt) + drift(s, t) * dt, t + dt};};
     }
   }
 }
