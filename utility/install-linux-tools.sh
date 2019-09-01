@@ -12,6 +12,13 @@ cd Catch2
 cmake -Bbuild -H. -DBUILD_TESTING=OFF
 cmake --build build/ --target install
 
+#install gcem and stats
+git clone --depth 1  https://github.com/kthohr/gcem.git
+git clone --depth 1 https://github.com/kthohr/stats.git
+mkdir include
+mv gcem/include/* ./include
+mv stats/include/* ./include
+
 #install ranges
 cd ..
 git clone --branch 0.9.0 --depth 1 https://github.com/ericniebler/range-v3.git

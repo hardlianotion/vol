@@ -42,21 +42,57 @@ namespace vol {
     }
     
     //test generator
-    auto constant(const double level) {
+    auto constant(double level) {
       return [level]() {return level;};
     }
   };
 
-  namespace sim {
+  namespace proc {
+    /**
+     * white noise generator.
+     **/
+    auto brownian() {
+      return [](double t) {return generator::normal(0.,sqrt(t));};
+    }
+    
+    /**
+     * this generator might be useful in formal testing.
+     */
+    auto constant(double level) {
+      return [level](double t) {return level;};
+    }
+    /**
+     * defines a procress defined by 
+     * map \in map_type, gen \in gen_type
+     * S(t) = map(t, gen(t))
+     */
     template<
-      typename vol_type, 
+      typename gen_type,
+      typename map_type
+    >
+    auto process(const map_type& map, const gen_type& gen) {
+      return [map, gen](double t) {return map(t,gen(t)); }; 
+    }
+
+    /**
+     * euler provides an euler update step for the SDE
+     * dS(t) = drift(S(t),t) dt + vol(S(t),t) dW(t), 
+     * S(0) = S0
+     */
+    template<
+      typename vol_type,
       typename drift_type,
       typename gen_type
     >
-    auto euler(vol_type&& vol, drift_type& drift) {
-      return [vol, drift](double state, double time) {};
+    auto euler(
+      const vol_type& vol, 
+      const drift_type& drift, 
+      const gen_type& gen, 
+      double dt
+    ) {
+      return [vol, drift, gen, dt]
+        (double s, double t) -> std::tuple<double, double>
+          {return {s + vol(s, t) * gen(dt) + drift(s, t) * dt, t + dt};};
     }
-  };
-
+  }
 }
-

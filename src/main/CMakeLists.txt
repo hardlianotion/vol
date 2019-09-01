@@ -9,6 +9,7 @@ include_directories(
   ${vol_SOURCE_DIR}/src/test
   ${APPLE_CPP_ROOT}/usr/include
   /usr/local/include
+  /usr/local/opt/include
 )
 set(CMAKE_CXX_FLAGS "${CMAKE_C_FLAGS} -std=c++17")
 set(CMAKE_CXX_STANDARD 17)

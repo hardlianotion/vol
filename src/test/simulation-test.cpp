@@ -65,6 +65,7 @@ SCENARIO ("Simulation pipelines are composed functions.", "[simulation]") {
     std::generate_n(back_inserter(outs1), 10, lognorm1);
     std::generate_n(back_inserter(outs2), 10, norm2);
     std::generate_n(back_inserter(outs2), 10, lognorm2);
+    
     THEN("samples from the seeded generators are the same thereafter.") {
       for(auto [out1, out2]: ranges::views::zip(outs1, outs2)) {
         REQUIRE_THAT( out1, Catch::WithinAbs(out2, 1.e-10) );
