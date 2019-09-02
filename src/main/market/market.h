@@ -37,17 +37,26 @@ namespace vol {
   }
 
   namespace market::asian {
+
+    double geomAsian(
+      option o, double r, double f, double t, double v, double k, double dt
+    );
+
     template<typename process>
-    double asianing(process p, double& start, double end, double dt) {
+    auto asianing(process p, double start, double end, double dt) {
+      using namespace ranges;
       /*FIXME - hack.  can't figure out how to get iota 
       * and concepts to work
       * as desired.
       */ 
       size_t count = (end - start) / dt;
-      return accumulate(ranges::views::iota(0u, count) 
-          | [start, end, dt](size_t i) {return i * dt + start;} 
-          | p, 0);
+      return [start, end, dt, count, p](double t) {
+        return accumulate(ranges::views::iota(0u, count) 
+          | views::transform([start, end, dt](size_t i) {return i * dt + start;}) 
+          | views::transform(p), 0) / count;};
     }
+
+
   }
 }
 

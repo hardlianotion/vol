@@ -25,28 +25,28 @@ namespace vol {
     }
 
     // generators
-    auto normal(double mu, double sigma) {
+    inline auto normal(double mu, double sigma) {
       typedef std::normal_distribution<>  norm;
       return create<std::mt19937_64, norm>(norm(mu, sigma));
     }
     
-    auto normal(double mu, double sigma, std::seed_seq& seeds) {
+    inline auto normal(double mu, double sigma, std::seed_seq& seeds) {
       typedef std::normal_distribution<>  norm;
       return create<std::mt19937_64, norm>(norm(mu, sigma), seeds);
     }
     
-    auto lognormal(double nu, double sigma) {
+    inline auto lognormal(double nu, double sigma) {
       typedef std::lognormal_distribution<> lognorm;
       return create<std::mt19937_64, lognorm>(lognorm(nu, sigma));
     }
 
-    auto lognormal(double mu, double sigma, std::seed_seq& seeds) {
+    inline auto lognormal(double mu, double sigma, std::seed_seq& seeds) {
       typedef std::lognormal_distribution<> lognorm;
       return create<std::mt19937_64, lognorm>(lognorm(mu, sigma), seeds);
     }
     
     //test generator
-    auto constant(double level) {
+    inline auto constant(double level) {
       return [level]() {return level;};
     }
   };
@@ -55,21 +55,29 @@ namespace vol {
     /**
      * white noise generator.
      **/
-    auto bm() {
+    inline auto bm() {
       auto impl = generator::normal(0., 1.);
       return [impl](double t) mutable {return sqrt(t) * impl();};
     }
  
-    auto lognorm(double mu, double sigma) {
+    inline auto norm(double mu, double sigma) {
       auto impl = generator::normal(0., 1.);
       return [mu, sigma, impl](double t) mutable {
-        return exp((sigma * sqrt(t) + mu) * impl());};
+        return (sigma * sqrt(t) + mu) * impl();};
+    } 
+
+    //FIXME - study composition viz.
+    //https://yongweiwu.wordpress.com/2015/01/03/generic-lambdas-and-the-compose-function/
+    inline auto lognorm(double mu, double sigma) {
+      auto impl = norm(mu, sigma);
+      return [impl](double t) mutable {
+        return exp(impl(t));};
     } 
 
     /**
      * this generator might be useful in formal testing.
      */
-    auto constant(double level) {
+    inline auto constant(double level) {
       return [level](double t) {return level;};
     }
     /**
@@ -105,14 +113,14 @@ namespace vol {
         (double s, double t) mutable -> std::tuple<double, double> {return {s + vol(s, t) * gen(dt) + drift(s, t) * dt, t + dt};};
     }
 
-    auto cir(double lambda, double mu, double sigma, double dt) {
+    inline auto cir(double lambda, double mu, double sigma, double dt) {
       auto drift = [lambda, mu](double s, double) {return lambda*(mu - s);};
       auto vol = [sigma](double s, double) {return sigma*sqrt(s);};
       auto gen = bm();
       return euler(vol, drift, gen, dt);
     }
 
-    auto ou(double lambda, double mu, double sigma, double dt) {
+    inline auto ou(double lambda, double mu, double sigma, double dt) {
       auto drift = [lambda, mu](double s, double) {return lambda*(mu - s);};
       auto vol = [sigma](double s, double) {return sigma;};
       auto gen = bm();
@@ -125,7 +133,7 @@ namespace vol {
     typedef std::tuple<size_t, double, double> summary_type;
 
     template<typename forward_iterator>
-    summary_type&& sample_sums(
+    summary_type sample_sums(
       const forward_iterator& begin, const forward_iterator& end
     ) {
       using namespace std;
@@ -134,7 +142,7 @@ namespace vol {
       return std::accumulate(
         begin, 
         end, 
-        {size, 0., 0.}, 
+        std::make_tuple(size, 0., 0.), 
         [] (auto accum, auto next) -> summary_type {
           return {
             get<0>(accum),
@@ -149,12 +157,12 @@ namespace vol {
      * returns size, sx, sy, sxx, sxy, syy.
      */
     //FIXME - hack.  want any qualifying container iterator
-    typedef std::tuple<\
+    typedef std::tuple<
       size_t, double, double, 
       double, double, double> summary_type_2d;
 
     template <typename forward_iterator>
-    summary_type_2d&& sample_sums(
+    summary_type_2d sample_sums_2d(
       const forward_iterator& begin, const forward_iterator& end
     ) {
       using namespace std;
@@ -162,7 +170,7 @@ namespace vol {
       return std::accumulate(
         begin, 
         end, 
-        {size, 0., 0., 0., 0., 0.}, 
+        std::make_tuple(size, 0., 0., 0., 0., 0.), 
         [](auto accum, auto next) -> summary_type_2d {
           return {
             get<0>(accum),
@@ -175,7 +183,7 @@ namespace vol {
     }
 
     template<typename forward_iterator>
-    summary_type&& variance(
+    summary_type variance(
       const forward_iterator& begin, const forward_iterator& end
     ) {
       using namespace std;
@@ -193,11 +201,11 @@ namespace vol {
      * 2-dim second-order summary - xbar, ybar, varx, covxy, vary
      */
     template<typename forward_iterator>
-    summary_type_2d&& covariance(
+    summary_type_2d covariance(
       const forward_iterator& begin, const forward_iterator& end
     ) {
       using namespace std;
-      auto sums = sample_sums(begin, end);
+      auto sums = sample_sums_2d(begin, end);
       double size = get<0>(sums);
       double scale = 1. / (get<0>(sums) - 1.);
       return {
@@ -212,27 +220,21 @@ namespace vol {
     /**
      * control variate - returns mean and variance.
      */
-    template<typename proc_type>
-    std::tuple<double, double> summary(
-      proc_type& proc, proc_type& control, double control_mean, size_t size
+    template<typename forward_iterator>
+    summary_type summary(
+      const forward_iterator& begin, 
+      const forward_iterator& end, 
+      double control_mean, 
+      size_t size
     ) {
       using namespace std;
-      //using namespace ranges;
-
-      vector<double> sample, ctrl_sample;
-
-      generate_n(back_inserter(sample), size, proc);
-      generate_n(back_inserter(ctrl_sample), size, control);
-
-      //FIXME - we can do better than this when we try to 
-      //employ range more ambitiously.
-      auto p_sample = ranges::views::zip(sample, ctrl_sample);
-      auto cov = covariance(p_sample.begin(), p_sample.end());
-
+      forward_iterator ptr = begin;
+      auto cov = covariance(ptr, end);
       double corr = get<3>(cov) / get<4>(cov);
-      auto control_sample = p_sample 
+      
+      auto control_sample = ranges::views::iota(begin, end)
         | ranges::views::transform([corr, control_mean](auto item) {
-            return get<0>(item) - corr * (get<1>(item) - control_mean);});
+            return item->first - corr * (item->second - control_mean);});
       
       return variance(control_sample.begin(), control_sample.end());
     }

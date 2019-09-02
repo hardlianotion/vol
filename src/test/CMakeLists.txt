@@ -21,7 +21,8 @@ add_executable(
    
   market-test.cpp
   simulation-test.cpp
+  statistics-test.cpp
 )
 
-target_link_libraries(vol-tests Catch2::Catch2 sim market range-v3)
+target_link_libraries(vol-tests Catch2::Catch2 vol range-v3)
 

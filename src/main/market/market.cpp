@@ -64,5 +64,19 @@ namespace vol {
       return -t*black(o, r, f, t, v, k);
     }
   }
+  
+  namespace market::asian {
+    /**
+     * geometric asian via black model
+     */
+    double geomAsian(
+      option o, double r, double f, double t, double v, double k, double dt
+    ) {
+      size_t count = t / dt;
+      double vbar = v * sqrt((2 * count + 1)/(6 * (count + 1)));
+      double rho = 0.5 * (r - v*v / 2. + vbar * vbar);
+      return vanilla::black(o, rho, f, t, vbar, k);
+    }
+  }
 }
 
