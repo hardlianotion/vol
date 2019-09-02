@@ -3,6 +3,7 @@
 #include <random>
 #include <tuple>
 
+#include <iostream>
 #include <range/v3/all.hpp>
 
 
@@ -49,6 +50,7 @@ namespace vol {
     inline auto constant(double level) {
       return [level]() {return level;};
     }
+
   };
 
   namespace proc {
@@ -78,8 +80,13 @@ namespace vol {
      * this generator might be useful in formal testing.
      */
     inline auto constant(double level) {
-      return [level](double t) {return level;};
+      return [level](double t) -> double  { return level; };
     }
+
+    inline auto linear(double scale, double level) {
+      return [scale, level](double t) -> double { return t * scale + level; };
+    }
+
     /**
      * defines a procress defined by 
      * map \in map_type, gen \in gen_type

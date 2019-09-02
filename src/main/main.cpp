@@ -23,9 +23,20 @@ int main (int argc, char* argv[]) {
   double vol = 0.2;
   
   //set up arthmetic and geometric asian process
-  auto asianNorm = asian::asianing(norm(rate, vol), 0., T, dt);
+  auto tmp = norm(rate, vol);
+  auto asianNorm = asian::asianing(tmp, 0., T, dt);
   auto geoAsian = [asianNorm] (double t) {return exp (asianNorm(t));};
   auto asian = asian::asianing(lognorm(rate, vol), 0., T, dt);
+
+  for (double t = 0.; t < 2.; t += 0.4) {
+    std::cout << asian(t) << ", ";
+  }
+  std::cout << " asian " << std::endl;
+
+  for (double t = 0.; t < 2.; t += 0.4) {
+    std::cout << geoAsian(t) << ", "; 
+  }
+  std::cout << " geoAsian " << std::endl;
 
   //calculate the geometric asiam price
   double geoPrice = asian::geomAsian(option::CALL, rate, fut, T, vol, strike, dt);

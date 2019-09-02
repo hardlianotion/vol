@@ -1,4 +1,5 @@
 #pragma once
+#include <iostream>
 #include <range/v3/all.hpp>
 
 #include "stats.hpp"
@@ -30,6 +31,7 @@ namespace vol {
             return std::max(k - s, 0.);
             break;
           default:
+            std::cout << "NOT A NUMBER" << std::endl;
             return std::numeric_limits<double>::quiet_NaN();
         }
       };
@@ -52,8 +54,8 @@ namespace vol {
       size_t count = (end - start) / dt;
       return [start, end, dt, count, p](double t) {
         return accumulate(ranges::views::iota(0u, count) 
-          | views::transform([start, end, dt](size_t i) {return i * dt + start;}) 
-          | views::transform(p), 0) / count;};
+          | views::transform([start, end, dt](size_t i) { return i * dt + start; }) 
+          | views::transform(p), 0.) / count;};
     }
 
 

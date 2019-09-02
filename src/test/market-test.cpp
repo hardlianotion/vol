@@ -2,6 +2,7 @@
 #include "catch2/catch.hpp"
 
 #include "market/market.h"
+#include "sim/simulation.h"
 
 SCENARIO ("Option contracts price respect invariants.", "[market]") {
   using namespace vol::market::vanilla;
@@ -39,6 +40,52 @@ SCENARIO ("Option contracts price respect invariants.", "[market]") {
 
     THEN("The greeks are relateve via the pde") {
       REQUIRE_THAT( theta_v + v*v*itmf*itmf*gamma_v/2., Catch::WithinAbs(r/t*rho_v, 1.e-8) );
+    }
+  }
+
+  WHEN("asianing is carried out on an underlying process") {
+    using vol::proc::constant;
+    using vol::proc::linear;
+    double t = 10.;
+    double dt = 1.;
+    auto asianConst = market::asian::asianing(constant(1.), 0., t, dt);
+    
+    THEN("the output is the sum of the process samples over the period") {
+      double output = asianConst(t);
+
+      REQUIRE( output == 1.  );
+    }
+    
+    auto asianLin = market::asian::asianing(linear(1., 1.), 0., t, dt);
+    
+    THEN("the output is the sum of the process samples over the period") {
+      double output = asianLin(t);
+
+      REQUIRE( output == 5.5 );
+    }
+  }
+
+  WHEN("asianing is carried out using a stochastic process") {
+    using vol::proc::norm;
+    using vol::proc::lognorm;
+    double t = 10.;
+    double dt = 1.;
+
+    auto asianNorm = market::asian::asianing(norm(0.1, 0.4), 0., t, dt);
+    auto asianLogNorm= market::asian::asianing(lognorm(0.1, 0.4), 0., t, dt);
+    
+    THEN("successive draws from the asianed process are different.") {
+      double output = asianNorm(t);
+
+      CHECK( asianNorm(t) != asianNorm(t)  );
+      CHECK( asianNorm(2. * t) != asianNorm(t)  );
+    }
+    
+    THEN("the output is the sum of the process samples over the period") {
+      double output = asianLogNorm(t);
+
+      CHECK( asianLogNorm(t) != asianLogNorm(t)  );
+      CHECK( asianLogNorm(2. * t) != asianLogNorm(t)  );
     }
   }
 }
