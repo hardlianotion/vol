@@ -13,12 +13,29 @@ SCENARIO ("interval can be used for traversal std algorithms", "[utility]") {
     interval_d period2(iterator<double>(0.1, 0.05), iterator<double>(0.2, 0.05));
       
     THEN("begin <= end") {
-      CHECK(period.begin().loc_ < period.end().loc_);
+      CHECK(period.begin() < period.end());
       CHECK(period2.begin() < period2.end());
     }
   
-    WHEN("iterator ptr is incremented") {
+    WHEN("lhs and rhs have the same value and we apply ++ to rhs") {
+      iterator<double> lhs = period.begin();
+      iterator<double> rhs = period.begin();
+      ++rhs; 
+      
+      THEN("lhs < rhs") {
+        CHECK(lhs < rhs);  
+      }
+    }
+    
+    WHEN("lhs and rhs have the same value and we apply -- to rhs") {
+      iterator<double> lhs = period.begin();
+      iterator<double> rhs = period.begin();
+      --rhs;
 
+      THEN("rhs < lhs") {
+        CHECK(rhs < lhs);  
+      }
     }
   }
 }
+
