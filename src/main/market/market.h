@@ -40,10 +40,18 @@ namespace vol {
 
   namespace market::asian {
 
+    /**
+     * this is the price of a geometric asian option.  
+     * 
+     */
     double geomAsian(
       option o, double r, double f, double t, double v, double k, double dt
     );
-
+    
+    /**
+     * take a process and average the output between the time
+     * start and end.
+     */
     template<typename process>
     auto asianing(process p, double start, double end, double dt) {
       using namespace ranges;
@@ -51,14 +59,12 @@ namespace vol {
       * and concepts to work
       * as desired.
       */ 
-      size_t count = (end - start) / dt;
-      return [start, end, dt, count, p](double t) {
+      return [start, end, dt, p](double t) mutable {
+        size_t count = (std::max((std::min(end, t) - start), 0.) / dt);
         return accumulate(ranges::views::iota(0u, count) 
           | views::transform([start, end, dt](size_t i) { return i * dt + start; }) 
           | views::transform(p), 0.) / count;};
     }
-
-
   }
 }
 
