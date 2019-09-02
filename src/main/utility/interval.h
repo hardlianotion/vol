@@ -9,7 +9,48 @@
  * seems to be lazy and caching when I use it.
  */
 namespace vol::utility {
-    
+  template<typename T>
+  struct iterator;
+
+  template<typename T>
+  int distance(const iterator<T>& lhs, const iterator<T>& rhs); 
+
+  template<typename T>
+  bool operator == (const T& lhs, const iterator<T>& rhs);
+
+  template<typename T>
+  bool operator == (const iterator<T>& rhs, const iterator<T>& lhs);
+
+  template<typename T>
+  bool operator == (const iterator<T>& lhs, const T& rhs);
+
+  template<typename T>
+  bool operator != (const T& lhs, const iterator<T>& rhs); 
+
+  template<typename T>
+  bool operator != (const iterator<T>& lhs, const iterator<T>& rhs);
+  
+  template<typename T>
+  bool operator != (const iterator<T>& lhs, const T& rhs);
+  
+  template<typename T>
+  bool operator < (const T& lhs, const iterator<T>& rhs);
+  
+  template<typename T>
+  bool operator < (const iterator<T>& lhs, const iterator<T>& rhs);
+  
+  template<typename T>
+  bool operator < (const iterator<T>& lhs, const T& rhs);
+  
+  template<typename T>
+  bool operator <= (const T& lhs, const iterator<T>& rhs);
+  
+  template<typename T>
+  bool operator <= (const iterator<T>& lhs, const iterator<T>& rhs);
+  
+  template<typename T>
+  bool operator <= (const iterator<T>& lhs, const T& rhs);
+
   template<typename T>
   struct iterator {
     iterator(
@@ -55,13 +96,30 @@ namespace vol::utility {
   };
   
   template<typename T>
+  inline const iterator<T>& min (
+    const iterator<T>& begin, const iterator<T>& end
+  ) {
+    return begin.loc_ < end.loc_ ? begin : end;
+  }
+
+  template<typename T>
+  inline const iterator<T>& max (
+    const iterator<T>& begin, const iterator<T>& end
+  ) {
+    return begin.loc_ < end.loc_ ? end : begin;
+  }
+
+  template<typename T>
   struct interval {
     typedef iterator<T> iterator;
     typedef int ptr_diff;
   
     interval(
-      iterator&& begin, iterator&& end
-    ): bounds_(std::make_pair(std::min(begin, end),std::max(begin, end))) {}
+      const iterator& begin, const iterator& end
+    ): bounds_(
+        std::make_pair(
+          utility::min(begin, end),
+          utility::max(begin, end))) {}
     
     const iterator& begin() const {
       return bounds_.first;
@@ -76,8 +134,8 @@ namespace vol::utility {
 
   template<typename T>
   inline int distance(
-    const typename interval<T>::iterator& lhs, 
-    const typename interval<T>::iterator& rhs
+    const iterator<T>& lhs, 
+    const iterator<T>& rhs
   ) {
     if(lhs.inc_ != rhs.inc_)
       return std::numeric_limits<int>::signaling_NaN();
@@ -86,7 +144,7 @@ namespace vol::utility {
   }
 
   template<typename T>
-  inline bool operator == (const T& lhs, const typename interval<T>::iterator& rhs) {
+  inline bool operator == (const T& lhs, const iterator<T>& rhs) {
     if(lhs.inc_ != rhs.inc_)
       return std::numeric_limits<int>::signaling_NaN();
 
@@ -95,8 +153,8 @@ namespace vol::utility {
 
   template<typename T>
   inline bool operator == (
-    const typename interval<T>::iterator& rhs, 
-    const typename interval<T>::iterator& lhs
+    const iterator<T>& rhs, 
+    const iterator<T>& lhs
   ) {
     if(lhs.inc_ != rhs.inc_)
       return std::numeric_limits<int>::signaling_NaN();
@@ -105,7 +163,7 @@ namespace vol::utility {
   }
 
   template<typename T>
-  inline bool operator == (const typename interval<T>::iterator& lhs, const T& rhs) {
+  inline bool operator == (const iterator<T>& lhs, const T& rhs) {
     if(lhs.inc_ != rhs.inc_)
       return std::numeric_limits<int>::signaling_NaN();
 
@@ -113,7 +171,7 @@ namespace vol::utility {
   }
 
   template<typename T>
-  inline bool operator != (const T& lhs, const typename interval<T>::iterator& rhs) {
+  inline bool operator != (const T& lhs, const iterator<T>& rhs) {
     if(lhs.inc_ != rhs.inc_)
       return std::numeric_limits<int>::signaling_NaN();
 
@@ -121,15 +179,7 @@ namespace vol::utility {
   }
 
   template<typename T>
-  inline bool operator != (const typename interval<T>::iterator& lhs, const typename interval<T>::iterator& rhs) {
-    if(lhs.inc_ != rhs.inc_)
-      return std::numeric_limits<int>::signaling_NaN();
-
-    return lhs.loc_ != rhs.loc_;
-  }
-  
-  template<typename T>
-  inline bool operator != (const typename interval<T>::iterator& lhs, const T& rhs) {
+  inline bool operator != (const iterator<T>& lhs, const iterator<T>& rhs) {
     if(lhs.inc_ != rhs.inc_)
       return std::numeric_limits<int>::signaling_NaN();
 
@@ -137,18 +187,17 @@ namespace vol::utility {
   }
   
   template<typename T>
-  inline bool operator < (const T& lhs, const typename interval<T>::iterator& rhs) {
-    if(lhs.inc_ != rhs.inc_)
-      return std::numeric_limits<int>::signaling_NaN();
-
+  inline bool operator != (const iterator<T>& lhs, const T& rhs) {
+    return lhs.loc_ != rhs.loc_;
+  }
+  
+  template<typename T>
+  inline bool operator < (const T& lhs, const iterator<T>& rhs) {
     return lhs.loc_ < rhs.loc_;
   }
   
   template<typename T>
-  inline bool operator < (
-    const iterator<T>& lhs, 
-    const iterator<T>& rhs 
-  ) {
+  inline bool operator < (const iterator<T>& lhs, const iterator<T>& rhs) {
     if(lhs.inc_ != rhs.inc_)
       return std::numeric_limits<int>::signaling_NaN();
 
@@ -160,14 +209,16 @@ namespace vol::utility {
     const iterator<T>& lhs, 
     const T& rhs
   ) {
-    if(lhs.inc_ != rhs.inc_)
-      return std::numeric_limits<int>::signaling_NaN();
-
     return lhs.loc_ < rhs.loc_;
   }
   
   template<typename T>
-  inline bool operator <= (const T& lhs, const typename interval<T>::iterator& rhs) {
+  inline bool operator <= (const T& lhs, const iterator<T>& rhs) {
+    return lhs.loc_ <= rhs.loc_;
+  }
+  
+  template<typename T>
+  inline bool operator <= (const iterator<T>& lhs, const iterator<T>& rhs) {
     if(lhs.inc_ != rhs.inc_)
       return std::numeric_limits<int>::signaling_NaN();
 
@@ -175,18 +226,7 @@ namespace vol::utility {
   }
   
   template<typename T>
-  inline bool operator <= (const typename interval<T>::iterator& lhs, const typename interval<T>::iterator& rhs) {
-    if(lhs.inc_ != rhs.inc_)
-      return std::numeric_limits<int>::signaling_NaN();
-
-    return lhs.loc_ <= rhs.loc_;
-  }
-  
-  template<typename T>
-  inline bool operator <= (const typename interval<T>::iterator& lhs, const T& rhs) {
-    if(lhs.inc_ != rhs.inc_)
-      return std::numeric_limits<int>::signaling_NaN();
-    
+  inline bool operator <= (const iterator<T>& lhs, const T& rhs) {
     return lhs.loc_ <= rhs.loc_;
   }
 }
