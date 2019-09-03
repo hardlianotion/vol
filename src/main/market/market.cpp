@@ -12,10 +12,8 @@ namespace vol {
       switch (o) {
         case option::CALL:
           return exp(-r*t)*(f*pnorm(d1, 0., 1.) - k*pnorm(d2, 0., 1.));
-          return exp(-r*t)*(f*pnorm(d1, 0., 1.) - k*pnorm(d2, 0., 1.));
           break;
         case option::PUT:
-          return exp(-r*t)*(k*pnorm(-d2, 0., 1.) - f*pnorm(-d1, 0., 1.));
           return exp(-r*t)*(k*pnorm(-d2, 0., 1.) - f*pnorm(-d1, 0., 1.));
           break;
         default:
