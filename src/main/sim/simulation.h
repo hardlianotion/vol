@@ -3,7 +3,6 @@
 #include <random>
 #include <tuple>
 
-#include <iostream>
 #include <range/v3/all.hpp>
 
 
@@ -215,9 +214,6 @@ namespace vol {
       auto sums = sample_sums_2d(begin, end);
       double size = get<0>(sums);
       double scale = 1. / (get<0>(sums) - 1.);
-      std::cout << "ss0: " << get<0>(sums) << " ss1: " << get<1>(sums);
-      std::cout << " ss2: " << get<2>(sums) << " ss3: " << get<3>(sums);
-      std::cout << " ss4: " << get<4>(sums) << " ss5: " << get<5>(sums) << std::endl;
 
       return {
         size,
@@ -243,16 +239,10 @@ namespace vol {
       forward_iterator ptr = begin;
       auto cov = covariance(ptr, end);
       double corr = get<4>(cov) / get<5>(cov);
-      std::cout << "c0: " << get<0>(cov) << " c1: " << get<1>(cov);
-      std::cout << "c2: " << get<2>(cov) << " c3: " << get<3>(cov);
-      std::cout << "c4: " << get<4>(cov) << " c5: " << get<5>(cov) << std::endl;
-      std::cout << "corr: " << corr << " ctrlmean: "<< control_mean << std::endl;
 
       std::vector<double> control_sample = {};
       transform(begin, end, back_inserter(control_sample), 
           [corr, control_mean](auto item) {
-            std::cout << "x: " << get<0>(item) << " cvv: " << get<1>(item) << std::endl;
-            std::cout << "cv: " << get<0>(item) - corr * (get<1>(item) - control_mean) << std::endl;
             return get<0>(item) - corr * (get<1>(item) - control_mean);});
       
       return variance(control_sample.begin(), control_sample.end());

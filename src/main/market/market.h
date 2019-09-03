@@ -78,10 +78,8 @@ namespace vol {
         }
 
         for (double s = start; s < std::min(t, end); s += dt) {
-          std::cout << " s: " << p(s);
           result += p(s);
         }
-        std::cout << std::endl;
         return result / static_cast<size_t>((end - start) / dt + 0.5);};
     }
   }
