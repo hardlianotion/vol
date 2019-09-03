@@ -70,10 +70,10 @@ namespace vol {
 
     //FIXME - study composition viz.
     //https://yongweiwu.wordpress.com/2015/01/03/generic-lambdas-and-the-compose-function/
-    inline auto lognorm(double mu, double sigma) {
+    inline auto lognorm(double initial, double mu, double sigma) {
       auto impl = norm(mu, sigma);
-      return [impl](double t) mutable {
-        return exp(impl(t));};
+      return [initial, impl](double t) mutable {
+        return initial * exp(impl(t));};
     } 
 
     /**
@@ -181,11 +181,11 @@ namespace vol {
         [](auto accum, auto next) -> summary_type_2d {
           return {
             get<0>(accum),
-            get<1>(accum) + next.first, 
-            get<2>(accum) + next.second,
-            get<3>(accum) + next.first*next.first, 
-            get<4>(accum) + next.first*next.second, 
-            get<5>(accum) + next.second*next.second, 
+            get<1>(accum) + get<0>(next), 
+            get<2>(accum) + get<1>(next),
+            get<3>(accum) + get<0>(next)*get<0>(next), 
+            get<4>(accum) + get<0>(next)*get<1>(next), 
+            get<5>(accum) + get<1>(next)*get<1>(next), 
           };});
     }
 
@@ -215,6 +215,10 @@ namespace vol {
       auto sums = sample_sums_2d(begin, end);
       double size = get<0>(sums);
       double scale = 1. / (get<0>(sums) - 1.);
+      std::cout << "ss0: " << get<0>(sums) << " ss1: " << get<1>(sums);
+      std::cout << " ss2: " << get<2>(sums) << " ss3: " << get<3>(sums);
+      std::cout << " ss4: " << get<4>(sums) << " ss5: " << get<5>(sums) << std::endl;
+
       return {
         size,
         get<1>(sums) / size,
@@ -226,6 +230,7 @@ namespace vol {
 
     /**
      * control variate - returns mean and variance.
+     * input is a container of std::pairs that have a forward iterator.
      */
     template<typename forward_iterator>
     summary_type summary(
@@ -237,11 +242,18 @@ namespace vol {
       using namespace std;
       forward_iterator ptr = begin;
       auto cov = covariance(ptr, end);
-      double corr = get<3>(cov) / get<4>(cov);
-      
-      auto control_sample = ranges::views::iota(begin, end)
-        | ranges::views::transform([corr, control_mean](auto item) {
-            return item->first - corr * (item->second - control_mean);});
+      double corr = get<4>(cov) / get<5>(cov);
+      std::cout << "c0: " << get<0>(cov) << " c1: " << get<1>(cov);
+      std::cout << "c2: " << get<2>(cov) << " c3: " << get<3>(cov);
+      std::cout << "c4: " << get<4>(cov) << " c5: " << get<5>(cov) << std::endl;
+      std::cout << "corr: " << corr << " ctrlmean: "<< control_mean << std::endl;
+
+      std::vector<double> control_sample = {};
+      transform(begin, end, back_inserter(control_sample), 
+          [corr, control_mean](auto item) {
+            std::cout << "x: " << get<0>(item) << " cvv: " << get<1>(item) << std::endl;
+            std::cout << "cv: " << get<0>(item) - corr * (get<1>(item) - control_mean) << std::endl;
+            return get<0>(item) - corr * (get<1>(item) - control_mean);});
       
       return variance(control_sample.begin(), control_sample.end());
     }

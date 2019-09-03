@@ -42,22 +42,22 @@ SCENARIO ("interval can be used for traversal std algorithms", "[utility]") {
       iterator<double> rhs = period.begin();
 
       THEN("distance(lhs, rhs) = 0") {
-        CHECK(distance(lhs, rhs) == 0);
-        CHECK(distance(rhs, lhs) == 0);
+        CHECK_THAT(distance(lhs, rhs), Catch::WithinAbs(0., 1e-6));
+        CHECK_THAT(distance(rhs, lhs), Catch::WithinAbs(0., 1e-6));
 
       }
 
       WHEN("if we operate ++ on rhs 5 times") {
         ++rhs; ++rhs; ++rhs; ++rhs; ++rhs;
-        THEN("lhs and rhs are 5 apart") {
-          CHECK(distance(lhs, rhs) == 5);
+        THEN("lhs and rhs are 5. apart") {
+          CHECK_THAT(distance(lhs, rhs), Catch::WithinAbs(5., 1e-6));
         }
       }
       
       WHEN("if we operate ++ on lhs 5 times") {
         ++lhs; ++lhs; ++lhs; ++lhs; ++lhs;
-        THEN("lhs and rhs are 5 apart") {
-          CHECK(distance(lhs, rhs) == -5);
+        THEN("lhs and rhs are 5. apart") {
+          CHECK_THAT(distance(lhs, rhs), Catch::WithinAbs(-5., 1e-6));
         }
       }
     }

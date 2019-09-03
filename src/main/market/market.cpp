@@ -12,11 +12,14 @@ namespace vol {
       switch (o) {
         case option::CALL:
           return exp(-r*t)*(f*pnorm(d1, 0., 1.) - k*pnorm(d2, 0., 1.));
+          return exp(-r*t)*(f*pnorm(d1, 0., 1.) - k*pnorm(d2, 0., 1.));
           break;
         case option::PUT:
           return exp(-r*t)*(k*pnorm(-d2, 0., 1.) - f*pnorm(-d1, 0., 1.));
+          return exp(-r*t)*(k*pnorm(-d2, 0., 1.) - f*pnorm(-d1, 0., 1.));
           break;
         default:
+          std::cout << "NAN CALC" << std::endl;
           return std::numeric_limits<double>::quiet_NaN();
       }
     }
@@ -72,8 +75,8 @@ namespace vol {
     double geomAsian(
       option o, double r, double f, double t, double v, double k, double dt
     ) {
-      size_t count = t / dt;
-      double vbar = v * sqrt((2 * count + 1)/(6 * (count + 1)));
+      double count = t / dt;
+      double vbar = v * sqrt((2. * count + 1.)/(6. * (count + 1.)));
       double rho = 0.5 * (r - v*v / 2. + vbar * vbar);
       return vanilla::black(o, rho, f, t, vbar, k);
     }

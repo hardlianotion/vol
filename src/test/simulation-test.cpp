@@ -9,7 +9,7 @@ SCENARIO ("Simulation pipelines are composed functions.", "[simulation]") {
     auto fn = [](int x) {return x + 1;};
 
     THEN("The var can be used as a function") {
-      REQUIRE(fn(1) == 2);
+      CHECK(fn(1) == 2);
     }
   }
 
@@ -18,8 +18,8 @@ SCENARIO ("Simulation pipelines are composed functions.", "[simulation]") {
     auto lfn = vol::generator::lognormal(1,2);
 
     THEN("No two calls to the function are identical") {
-      REQUIRE(fn() != fn());
-      REQUIRE(lfn() != lfn());
+      CHECK(fn() != fn());
+      CHECK(lfn() != lfn());
     }
   }
 
@@ -28,10 +28,10 @@ SCENARIO ("Simulation pipelines are composed functions.", "[simulation]") {
     auto const2 = vol::generator::constant(2.0);
 
     THEN("each call to the generator is identical") {
-      REQUIRE(const1() == const1());
-      REQUIRE(const2() == const2());
-      REQUIRE(const1() == 1);
-      REQUIRE(const2() == 2);
+      CHECK(const1() == const1());
+      CHECK(const2() == const2());
+      CHECK(const1() == 1);
+      CHECK(const2() == 2);
     }
   }
 
@@ -57,13 +57,13 @@ SCENARIO ("Simulation pipelines are composed functions.", "[simulation]") {
     // FIXME - nasty hack
     if(fabs(outs1[0] - refs[0]) < 1.e-5) {
       THEN("the first n draws from the generator are deterministic") {
-        REQUIRE_THAT( outs1, Catch::Approx(refs).epsilon(1.e-5) );
-        REQUIRE_THAT( outs2, Catch::Approx(refs).epsilon(1.e-5) );
+        CHECK_THAT( outs1, Catch::Approx(refs).epsilon(1.e-5) );
+        CHECK_THAT( outs2, Catch::Approx(refs).epsilon(1.e-5) );
       }
     } else {
       THEN("the first n draws from the generator are deterministic") {
-        REQUIRE_THAT( outs1, Catch::Approx(refAlts).epsilon(1.e-5) );
-        REQUIRE_THAT( outs2, Catch::Approx(refAlts).epsilon(1.e-5) );
+        CHECK_THAT( outs1, Catch::Approx(refAlts).epsilon(1.e-5) );
+        CHECK_THAT( outs2, Catch::Approx(refAlts).epsilon(1.e-5) );
       }
     }
 
@@ -73,7 +73,7 @@ SCENARIO ("Simulation pipelines are composed functions.", "[simulation]") {
     std::generate_n(back_inserter(outs2), 10, lognorm2);
     
     THEN("samples from the seeded generators are the same thereafter.") {
-      REQUIRE_THAT( outs1, Catch::Approx(outs2).epsilon(1.e-10) );
+      CHECK_THAT( outs1, Catch::Approx(outs2).epsilon(1.e-10) );
     }
   }
 }

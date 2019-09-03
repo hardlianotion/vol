@@ -24,22 +24,22 @@ SCENARIO ("Option contracts price respect invariants.", "[market]") {
     double delta_v = delta(option::CALL, r, itmf, t, v, k);
 
     THEN("Prices and risks are non-zero") {
-      REQUIRE( put_v > 0. );
-      REQUIRE( call_v > 0. );
-      REQUIRE( theta_v < 0. );
-      REQUIRE( gamma_v > 0. );
-      REQUIRE( rho_v < 0. );
-      REQUIRE( delta_v > 0. );
+      CHECK( put_v > 0. );
+      CHECK( call_v > 0. );
+      CHECK( theta_v < 0. );
+      CHECK( gamma_v > 0. );
+      CHECK( rho_v < 0. );
+      CHECK( delta_v > 0. );
     }
 
     double fwd_v = exp(-r*t)*(itmf - k);    
     
     THEN("call - put is price of forward contract") {
-      REQUIRE_THAT( call_v - put_v, Catch::WithinAbs(fwd_v, 1.e-8) );
+      CHECK_THAT( call_v - put_v, Catch::WithinAbs(fwd_v, 1.e-8) );
     }
 
     THEN("The greeks are relateve via the pde") {
-      REQUIRE_THAT( theta_v + v*v*itmf*itmf*gamma_v/2., Catch::WithinAbs(r/t*rho_v, 1.e-8) );
+      CHECK_THAT( theta_v + v*v*itmf*itmf*gamma_v/2., Catch::WithinAbs(r/t*rho_v, 1.e-8) );
     }
   }
 
@@ -50,19 +50,19 @@ SCENARIO ("Option contracts price respect invariants.", "[market]") {
     double dt = 1.;
     auto asianConst = market::asian::asianing(constant(1.), 1., t, dt);
     
-    THEN("the output is the sum of the process samples over the period") {
-      REQUIRE( asianConst(t) == 1. );
+    THEN("the output is the sum of he process samples over the period") {
+      CHECK( asianConst(t) == 1. );
     }
     
     auto asianLin = market::asian::asianing(linear(1., 1.), 1., t, dt);
     
-    THEN("the output is the sum of the process samples over the period") {
-      REQUIRE( asianLin(t) == 6. );
-      REQUIRE( asianLin(t - 1.) == 5.5 );
+    THEN("the output is the average of the process samples over the period") {
+      CHECK( asianLin(t) == 6.0);
+      CHECK_THAT( asianLin(t - 1.), Catch::WithinAbs(4.888889, 1e-5 ));
     }
 
     THEN("Underlying process samples are not contributed past expiry.") {
-      REQUIRE( asianLin(20.) == 6. );
+      CHECK( asianLin(20.) == 6.0 );
     }
   }
 }
@@ -78,11 +78,11 @@ SCENARIO ("Market contracts are driven by stochastic processes..", "[market]") {
 
     auto lin_d = linear(1., 1.);
     auto norm_d = norm(0.1, 0.4);
-    auto lognorm_d = lognorm(0.1, 0.4);
+    auto lognorm_d = lognorm(1., .1, 0.4);
     
     auto asianLin = vol::market::asian::asianing(linear(1., 1.), 0., t, dt);
     auto asianNorm = vol::market::asian::asianing(norm(0.1, 0.4), 0., t, dt);
-    auto asianLogNorm = vol::market::asian::asianing(lognorm(0.1, 0.4), 0., t, dt);
+    auto asianLogNorm = vol::market::asian::asianing(lognorm(1, 0.1, 0.4), 0., t, dt);
     
     THEN("successive draws from the underlying process are different.") {
       CHECK( t != 2. * t );

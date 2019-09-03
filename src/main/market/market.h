@@ -44,13 +44,20 @@ namespace vol {
     typedef utility::iterator<double> iterator;
     typedef utility::interval<double> interval_d;
     /**
-     * this is the price of a geometric asian option.  
+     * this is the analytic price of a geometric asian option.  
      * 
      */
     double geomAsian(
       option o, double r, double f, double t, double v, double k, double dt
     );
-    
+    /**
+     *
+     */
+    template<typename iterator>
+    double geomAsianing(double start, double end, double dt) {
+      
+    }
+
     /**
      * take a process and average the output between the time
      * start and end.
@@ -70,12 +77,12 @@ namespace vol {
           return result;
         }
 
-        interval_d period(iterator(start, dt), iterator(std::min(t, end), dt));
-        
-        for (auto ptr: period) {
-          result += p(ptr);
+        for (double s = start; s < std::min(t, end); s += dt) {
+          std::cout << " s: " << p(s);
+          result += p(s);
         }
-        return result / utility::distance(period.begin(), period.end());};
+        std::cout << std::endl;
+        return result / static_cast<size_t>((end - start) / dt + 0.5);};
     }
   }
 }

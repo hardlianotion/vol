@@ -14,7 +14,7 @@ namespace vol::utility {
   struct iterator;
 
   template<typename T>
-  int distance(const iterator<T>& lhs, const iterator<T>& rhs); 
+  double distance(const iterator<T>& lhs, const iterator<T>& rhs); 
 
   template<typename T>
   bool operator == (const T& lhs, const iterator<T>& rhs);
@@ -142,15 +142,14 @@ namespace vol::utility {
   };
 
   template<typename T>
-  inline int distance(
+  inline double distance(
     const iterator<T>& lhs, 
     const iterator<T>& rhs
   ) {
     if(lhs.inc_ != rhs.inc_)
       return std::numeric_limits<int>::signaling_NaN();
 
-    return static_cast<int>((rhs.loc_ - lhs.loc_) / lhs.inc_ 
-        + 0.5 * sgn(rhs.loc_ - lhs.loc_));
+    return (rhs.loc_ - lhs.loc_) / lhs.inc_;
   }
 
   template<typename T>

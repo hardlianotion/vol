@@ -19,7 +19,7 @@ int main (int argc, char* argv[]) {
   using namespace vol;
 
   double T = 1.;
-  double dt = 1. / 365.;
+  double dt = 1. / 5.;
   double strike = 100.;
   double fut = 100.;
   double rate = 0.01;
@@ -37,31 +37,21 @@ int main (int argc, char* argv[]) {
   //set up arthmetic and geometric asian process
   auto tmp = norm(rate, vol);
   auto asianNorm = asian::asianing(tmp, 0., T, dt);
-  auto geoAsian = [asianNorm] (double t) mutable {return exp (asianNorm(t));};
-  auto asian = asian::asianing(lognorm(rate, vol), 0., T, dt);
-
-  for (double t = 0.; t < 2.; t += 0.4) {
-    std::cout << asian(t) << ", ";
-  }
-  std::cout << " asian " << std::endl;
-
-  for (double t = 0.; t < 2.; t += 0.4) {
-    std::cout << geoAsian(t) << ", "; 
-  }
-  std::cout << " geoAsian " << std::endl;
+  auto geoAsian = [fut, asianNorm] (double t) mutable {return fut * exp (asianNorm(t));};
+  auto asian = asian::asianing(lognorm(fut, rate, vol), 0., T, dt);
 
   //calculate the geometric asiam price
   double geoPrice = asian::geomAsian(option::CALL, rate, fut, T, vol, strike, dt);
   
   //create payoffs with price processes
   auto call = vanilla::payoff(option::CALL, strike);
-  auto asianCall = [call, asian](double t) mutable {return call(asian(t));};
-  auto geoAsianCall = [call, geoAsian](double t) mutable {return call(geoAsian(t));};
+  auto asianCall = [call, asian](double t) mutable {double result = call(asian(t));std::cout<<"asc " << result<< std::endl;  return result;};
+  auto geoAsianCall = [call, geoAsian](double t) mutable {double result = call(geoAsian(t)); std::cout<<"gsc " << result<< std::endl;  return result;};
   
-  std::vector<std::pair<double, double>> paired_sample = ranges::to<std::vector>(
+  auto paired_sample = ranges::to<std::vector>(
     ranges::views::generate_n(
-    [T, asianCall, geoAsianCall]() mutable -> std::pair<double, double> {
-      return std::make_pair(asianCall(T), geoAsianCall(T)); }, 10000));
+    [T, asianCall, geoAsianCall]() mutable -> std::tuple<double, double> {
+      return std::make_tuple(asianCall(T), geoAsianCall(T)); }, 10));
   
   auto summary = vol::stats::summary(
       paired_sample.begin(), 

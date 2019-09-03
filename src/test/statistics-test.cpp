@@ -19,9 +19,9 @@ SCENARIO ("samples are used to summarise simulations..", "[sample]") {
     THEN("sample_sums delivers sample size, mean and variance") {
       auto summary = variance(sample.begin(), sample.end());
 
-      REQUIRE( std::get<0>(summary) == 5u );
-      REQUIRE( std::get<1>(summary) == 2. );
-      REQUIRE( std::get<2>(summary) == 2.5 );
+      CHECK( std::get<0>(summary) == 5u );
+      CHECK( std::get<1>(summary) == 2. );
+      CHECK( std::get<2>(summary) == 2.5 );
     }
   }
   
@@ -34,12 +34,23 @@ SCENARIO ("samples are used to summarise simulations..", "[sample]") {
     THEN("sample_sums delivers sample size, mean and variance") {
       auto summary = covariance(sample_pair.begin(), sample_pair.end());
 
-      REQUIRE( std::get<0>(summary) == 5u );
-      REQUIRE( std::get<1>(summary) == 2. );
-      REQUIRE( std::get<2>(summary) == 2. );
-      REQUIRE( std::get<3>(summary) == 2.5 );
-      REQUIRE( std::get<4>(summary) == -2.5 );
-      REQUIRE( std::get<5>(summary) == 2.5 );
+      CHECK( std::get<0>(summary) == 5u );
+      CHECK( std::get<1>(summary) == 2. );
+      CHECK( std::get<2>(summary) == 2. );
+      CHECK( std::get<3>(summary) == 2.5 );
+      CHECK( std::get<4>(summary) == -2.5 );
+      CHECK( std::get<5>(summary) == 2.5 );
+    }
+
+    WHEN("a control variate is presented") {
+      double c_mean = 2.1;
+
+      THEN("we can calculate a mean and variance.") {
+        auto result = summary(sample_pair.begin(), sample_pair.end(), c_mean, 5u);
+
+        CHECK(std::get<1>(result) == 1.9);
+        CHECK(std::get<2>(result) == 0.);
+      }
     }
   }
 }
