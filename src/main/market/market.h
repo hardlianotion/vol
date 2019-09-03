@@ -41,7 +41,7 @@ namespace vol {
 
   namespace market::asian {
 
-    typedef utility::iterator<double> iterator;
+    typedef utility::titerator<double> iterator;
     typedef utility::interval<double> interval_d;
     
     /**

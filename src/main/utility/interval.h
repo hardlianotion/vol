@@ -9,51 +9,52 @@
  * requires another transformation and the structure
  * seems to be lazy and caching when I use it.
  */
+
 namespace vol::utility {
   template<typename T>
-  struct iterator;
+  struct titerator;
 
   template<typename T>
-  double distance(const iterator<T>& lhs, const iterator<T>& rhs); 
+  double distance(const titerator<T>& lhs, const titerator<T>& rhs); 
 
   template<typename T>
-  bool operator == (const T& lhs, const iterator<T>& rhs);
+  bool operator == (const T& lhs, const titerator<T>& rhs);
 
   template<typename T>
-  bool operator == (const iterator<T>& rhs, const iterator<T>& lhs);
+  bool operator == (const titerator<T>& rhs, const titerator<T>& lhs);
 
   template<typename T>
-  bool operator == (const iterator<T>& lhs, const T& rhs);
+  bool operator == (const titerator<T>& lhs, const T& rhs);
 
   template<typename T>
-  bool operator != (const T& lhs, const iterator<T>& rhs); 
+  bool operator != (const T& lhs, const titerator<T>& rhs); 
 
   template<typename T>
-  bool operator != (const iterator<T>& lhs, const iterator<T>& rhs);
+  bool operator != (const titerator<T>& lhs, const titerator<T>& rhs);
   
   template<typename T>
-  bool operator != (const iterator<T>& lhs, const T& rhs);
+  bool operator != (const titerator<T>& lhs, const T& rhs);
   
   template<typename T>
-  bool operator < (const T& lhs, const iterator<T>& rhs);
+  bool operator < (const T& lhs, const titerator<T>& rhs);
   
   template<typename T>
-  bool operator < (const iterator<T>& lhs, const iterator<T>& rhs);
+  bool operator < (const titerator<T>& lhs, const titerator<T>& rhs);
   
   template<typename T>
-  bool operator < (const iterator<T>& lhs, const T& rhs);
+  bool operator < (const titerator<T>& lhs, const T& rhs);
   
   template<typename T>
-  bool operator <= (const T& lhs, const iterator<T>& rhs);
+  bool operator <= (const T& lhs, const titerator<T>& rhs);
   
   template<typename T>
-  bool operator <= (const iterator<T>& lhs, const iterator<T>& rhs);
+  bool operator <= (const titerator<T>& lhs, const titerator<T>& rhs);
   
   template<typename T>
-  bool operator <= (const iterator<T>& lhs, const T& rhs);
+  bool operator <= (const titerator<T>& lhs, const T& rhs);
 
   template<typename T>
-  struct iterator {
+  struct titerator {
     
     using iterator_category = std::forward_iterator_tag;
     using value_type = double;
@@ -61,27 +62,27 @@ namespace vol::utility {
     using pointer = double*;
     using reference = double&;
 
-    iterator(
+    titerator(
       const T& loc,
       const T& inc
     ): inc_(inc), loc_(loc) {}
 
-    iterator(
-      const iterator& other
+    titerator(
+      const titerator& other
     ): inc_(other.inc_), loc_(other.loc_) {}
     
-    iterator& operator++() {
+    titerator& operator++() {
       loc_ += inc_;
       return *this;
     }
 
-    iterator&& operator++(int) const {
-      iterator result(*this);
+    titerator&& operator++(int) const {
+      titerator result(*this);
       ++(*this);
       return std::move(*result);
     }
 
-    iterator& operator--() {
+    titerator& operator--() {
       loc_ -= inc_;
       return *this;
     }
@@ -94,13 +95,13 @@ namespace vol::utility {
       return loc_;
     }
 
-    iterator&& operator--(int) const {
-      iterator result(*this);
+    titerator&& operator--(int) const {
+      titerator result(*this);
       --(*this);
       return std::move(*result);
     }
 
-    iterator& operator=(const iterator& rhs) {
+    titerator& operator=(const titerator& rhs) {
       loc_ = rhs.loc_;
       return *this;
     }
@@ -112,22 +113,22 @@ namespace vol::utility {
   };
   
   template<typename T>
-  inline const iterator<T>& min (
-    const iterator<T>& begin, const iterator<T>& end
+  inline const titerator<T>& min (
+    const titerator<T>& begin, const titerator<T>& end
   ) {
     return begin.loc_ < end.loc_ ? begin : end;
   }
 
   template<typename T>
-  inline const iterator<T>& max (
-    const iterator<T>& begin, const iterator<T>& end
+  inline const titerator<T>& max (
+    const titerator<T>& begin, const titerator<T>& end
   ) {
     return begin.loc_ < end.loc_ ? end : begin;
   }
 
   template<typename T>
   struct interval {
-    typedef iterator<T> iterator;
+    typedef titerator<T> iterator;
     using iterator_category = typename iterator::iterator_category;
     using value_type = typename iterator::value_type;
     using difference_type = typename iterator::difference_type;
@@ -154,8 +155,8 @@ namespace vol::utility {
 
   template<typename T>
   inline double distance(
-    const iterator<T>& lhs, 
-    const iterator<T>& rhs
+    const titerator<T>& lhs, 
+    const titerator<T>& rhs
   ) {
     if(lhs.inc_ != rhs.inc_)
       return std::numeric_limits<int>::signaling_NaN();
@@ -164,7 +165,7 @@ namespace vol::utility {
   }
 
   template<typename T>
-  inline bool operator == (const T& lhs, const iterator<T>& rhs) {
+  inline bool operator == (const T& lhs, const titerator<T>& rhs) {
     if(lhs.inc_ != rhs.inc_)
       return std::numeric_limits<int>::signaling_NaN();
 
@@ -173,8 +174,8 @@ namespace vol::utility {
 
   template<typename T>
   inline bool operator == (
-    const iterator<T>& rhs, 
-    const iterator<T>& lhs
+    const titerator<T>& rhs, 
+    const titerator<T>& lhs
   ) {
     if(lhs.inc_ != rhs.inc_)
       return std::numeric_limits<int>::signaling_NaN();
@@ -183,7 +184,7 @@ namespace vol::utility {
   }
 
   template<typename T>
-  inline bool operator == (const iterator<T>& lhs, const T& rhs) {
+  inline bool operator == (const titerator<T>& lhs, const T& rhs) {
     if(lhs.inc_ != rhs.inc_)
       return std::numeric_limits<int>::signaling_NaN();
 
@@ -191,7 +192,7 @@ namespace vol::utility {
   }
 
   template<typename T>
-  inline bool operator != (const T& lhs, const iterator<T>& rhs) {
+  inline bool operator != (const T& lhs, const titerator<T>& rhs) {
     if(lhs.inc_ != rhs.inc_)
       return std::numeric_limits<int>::signaling_NaN();
 
@@ -199,7 +200,7 @@ namespace vol::utility {
   }
 
   template<typename T>
-  inline bool operator != (const iterator<T>& lhs, const iterator<T>& rhs) {
+  inline bool operator != (const titerator<T>& lhs, const titerator<T>& rhs) {
     if(lhs.inc_ != rhs.inc_)
       return std::numeric_limits<int>::signaling_NaN();
 
@@ -207,17 +208,17 @@ namespace vol::utility {
   }
   
   template<typename T>
-  inline bool operator != (const iterator<T>& lhs, const T& rhs) {
+  inline bool operator != (const titerator<T>& lhs, const T& rhs) {
     return lhs.loc_ != rhs.loc_;
   }
   
   template<typename T>
-  inline bool operator < (const T& lhs, const iterator<T>& rhs) {
+  inline bool operator < (const T& lhs, const titerator<T>& rhs) {
     return lhs.loc_ < rhs.loc_;
   }
   
   template<typename T>
-  inline bool operator < (const iterator<T>& lhs, const iterator<T>& rhs) {
+  inline bool operator < (const titerator<T>& lhs, const titerator<T>& rhs) {
     if(lhs.inc_ != rhs.inc_)
       return std::numeric_limits<int>::signaling_NaN();
 
@@ -226,19 +227,19 @@ namespace vol::utility {
   
   template<typename T>
   inline bool operator < (
-    const iterator<T>& lhs, 
+    const titerator<T>& lhs, 
     const T& rhs
   ) {
     return lhs.loc_ < rhs.loc_;
   }
   
   template<typename T>
-  inline bool operator <= (const T& lhs, const iterator<T>& rhs) {
+  inline bool operator <= (const T& lhs, const titerator<T>& rhs) {
     return lhs.loc_ <= rhs.loc_;
   }
   
   template<typename T>
-  inline bool operator <= (const iterator<T>& lhs, const iterator<T>& rhs) {
+  inline bool operator <= (const titerator<T>& lhs, const titerator<T>& rhs) {
     if(lhs.inc_ != rhs.inc_)
       return std::numeric_limits<int>::signaling_NaN();
 
@@ -246,7 +247,7 @@ namespace vol::utility {
   }
   
   template<typename T>
-  inline bool operator <= (const iterator<T>& lhs, const T& rhs) {
+  inline bool operator <= (const titerator<T>& lhs, const T& rhs) {
     return lhs.loc_ <= rhs.loc_;
   }
 }

@@ -28,9 +28,10 @@ SCENARIO ("transform applies collections of operations to data", "[transform]") 
   }
 }
 
+template<typename T> using iterator = vol::utility::titerator<T>;
+
 SCENARIO ("interval can be used for traversal std algorithms", "[utility]") {
   using namespace vol::utility;
-
   typedef interval<double> interval_d;
 
   WHEN("interval is created") {

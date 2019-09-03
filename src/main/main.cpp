@@ -27,7 +27,7 @@ int main (int argc, char* argv[]) {
   
   typedef vol::utility::interval<double> interval_d;
 
-  interval_d tm(utility::iterator<double>(1., 0.1), utility::iterator<double>(2., 0.1));
+  interval_d tm(utility::titerator<double>(1., 0.1), utility::titerator<double>(2., 0.1));
   const interval_d::iterator b = tm.begin();
   const interval_d::iterator e = tm.end();
   //const interval_d::iterator e = tm.end();
