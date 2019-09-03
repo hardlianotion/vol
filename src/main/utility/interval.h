@@ -5,7 +5,7 @@
  * what structure in the Nieber's range library gives
  * me desired behaviour.
  *
- * At the moment, view::iota does not quite fit.  Usage 
+ * At the moment, I can't make view::iota work for me.  Usage 
  * requires another transformation and the structure
  * seems to be lazy and caching when I use it.
  */
