@@ -54,6 +54,13 @@ namespace vol::utility {
 
   template<typename T>
   struct iterator {
+    
+    using iterator_category = std::forward_iterator_tag;
+    using value_type = double;
+    using difference_type = double;
+    using pointer = double*;
+    using reference = double&;
+
     iterator(
       const T& loc,
       const T& inc
@@ -122,7 +129,12 @@ namespace vol::utility {
   struct interval {
     typedef iterator<T> iterator;
     typedef int ptr_diff;
-  
+    using iterator_category = typename iterator::iterator_category;
+    using value_type = typename iterator::value_type;
+    using difference_type = typename iterator::difference_type;
+    using pointer = typename iterator::pointer;
+    using reference = typename iterator::reference;
+
     interval(
       const iterator& begin, const iterator& end
     ): bounds_(
