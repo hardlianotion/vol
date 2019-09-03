@@ -43,6 +43,7 @@ namespace vol {
 
     typedef utility::iterator<double> iterator;
     typedef utility::interval<double> interval_d;
+    
     /**
      * this is the analytic price of a geometric asian option.  
      * 
@@ -50,13 +51,6 @@ namespace vol {
     double geomAsian(
       option o, double r, double f, double t, double v, double k, double dt
     );
-    /**
-     *
-     */
-    template<typename iterator>
-    double geomAsianing(double start, double end, double dt) {
-      
-    }
 
     /**
      * take a process and average the output between the time
@@ -80,7 +74,33 @@ namespace vol {
         for (double s = start; s < std::min(t, end); s += dt) {
           result += p(s);
         }
-        return result / static_cast<size_t>((end - start) / dt + 0.5);};
+        return result / ((end - start) / dt);};
+    }
+
+    /**
+     * Take a geometric average over [start, end).  
+     * FIXME - We can express this interms of asianing, above, but 
+     * we are struggling with caching issues with random generators
+     */
+    template<typename process>
+    auto geomAsianing(process p, double start, double end, double dt) {
+      if(start >= end) {
+        std::ostringstream err;
+        err << "start (" << start << ") must be less than (" << end <<")" 
+            << std::endl;
+        throw std::invalid_argument(err.str());
+      }
+      
+      return [start, end, dt, p](double t) mutable {
+        double result = 0.;
+        if(t < start) {
+          return result;
+        }
+
+        for (double s = start; s < std::min(t, end); s += dt) {
+          result += log(p(s));
+        }
+        return exp(result / ((end - start) / dt));};
     }
   }
 }
