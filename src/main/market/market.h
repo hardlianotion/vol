@@ -57,10 +57,6 @@ namespace vol {
      */
     template<typename process>
     auto asianing(process p, double start, double end, double dt) {
-      /*FIXME - hack.  can't figure out how to get iota 
-      * and concepts to work
-      * as desired.
-      */ 
       if(start >= end) {
         std::ostringstream err;
         err << "start (" << start << ") must be less than (" << end <<")" 
@@ -69,22 +65,17 @@ namespace vol {
       }
 
       return [start, end, dt, p](double t) mutable {
-        if(t < start)
-          return 0.0;
+        double result = 0.;
+        if(t < start) {
+          return result;
+        }
+
         interval_d period(iterator(start, dt), iterator(std::min(t, end), dt));
-        //FIXME - if this is 0, our tests fail.  If this is 1 they pass.  Why?
-#if 0 
-        std::cout << "p1: " << p(t) << std::endl; 
-#endif  
-        double result = 0.0;
+        
         for (auto ptr: period) {
           result += p(ptr);
         }
         return result / utility::distance(period.begin(), period.end());};
-//        return std::accumulate(period.begin(), period.end(), 0., 
-//            [t, p](double agg, double inc) mutable -> double {
-//            return agg + p(inc);
-//            }) / utility::distance(period.begin(), period.end());};
     }
   }
 }
