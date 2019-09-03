@@ -49,13 +49,12 @@ namespace vol {
     inline auto constant(double level) {
       return [level]() {return level;};
     }
-
   };
 
   namespace proc {
     /**
      * white noise generator.
-     **/
+     */
     inline auto bm() {
       auto impl = generator::normal(0., 1.);
       return [impl](double t) mutable {return sqrt(t) * impl();};

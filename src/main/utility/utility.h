@@ -1,5 +1,4 @@
 #pragma once
-#include <iostream>
 
 
 namespace vol::utility {
@@ -21,3 +20,4 @@ namespace vol::utility {
     }
   }
 }
+

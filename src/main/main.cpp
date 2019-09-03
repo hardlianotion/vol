@@ -37,7 +37,7 @@ int main (int argc, char* argv[]) {
   //set up arthmetic and geometric asian process
   auto tmp = norm(rate, vol);
   auto asianNorm = asian::asianing(tmp, 0., T, dt);
-  auto geoAsian = [fut, asianNorm] (double t) mutable {return fut * exp (asianNorm(t));};
+  auto geoAsian = asian::geomAsianing(lognorm(fut, rate, vol), 0., T, dt);
   auto asian = asian::asianing(lognorm(fut, rate, vol), 0., T, dt);
 
   //calculate the geometric asiam price
