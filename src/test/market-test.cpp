@@ -2,6 +2,7 @@
 #include "catch2/catch.hpp"
 
 #include "market/market.h"
+#include "sim/process.h"
 #include "sim/simulation.h"
 
 SCENARIO ("Option contracts price respect invariants.", "[market]") {

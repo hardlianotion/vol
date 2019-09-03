@@ -3,6 +3,7 @@
 #include <range/v3/range/conversion.hpp>
 
 #include "market/market.h"
+#include "sim/process.h"
 #include "sim/simulation.h"
 #include "utility/interval.h"
 

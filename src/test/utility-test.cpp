@@ -1,17 +1,28 @@
 #include "catch2/catch.hpp"
 
 #include "utility/interval.h"
-#include "sim/simulation.h"
 #include <iostream>
+
+
+inline auto test_const(double c) {
+  return [c] (double t) {
+    return c;
+  };
+}
+
+inline auto test_lin(double c, double r) {
+  return [c,r] (double t) {
+    return c + r * t;
+  };
+}
 
 SCENARIO ("transform applies collections of operations to data", "[transform]") {
   using namespace vol::utility;
-
+  
   WHEN("a list of functions is applied to an operand") {
-    using namespace vol::proc;
     std::vector<
       std::function<double(double)>
-    > functions = {constant(5.), linear(4., 1.)};
+    > functions = {test_const(5.), test_lin(4., 1.)};
    
     functions.begin()->operator()(3.); 
     std::vector<double> results;

@@ -3,6 +3,7 @@
 #include <numeric>
 
 #include "catch2/catch.hpp"
+#include "sim/process.h"
 #include "sim/simulation.h"
 
 
