@@ -1,8 +1,10 @@
 #pragma once
 #include <iostream>
-#include <range/v3/all.hpp>
+#include <sstream>
+#include <exception>
 
 #include "stats.hpp"
+#include "utility/interval.h"
 
 
 namespace vol {
@@ -31,7 +33,6 @@ namespace vol {
             return std::max(k - s, 0.);
             break;
           default:
-            std::cout << "NOT A NUMBER" << std::endl;
             return std::numeric_limits<double>::quiet_NaN();
         }
       };
@@ -40,6 +41,8 @@ namespace vol {
 
   namespace market::asian {
 
+    typedef utility::iterator<double> iterator;
+    typedef utility::interval<double> interval_d;
     /**
      * this is the price of a geometric asian option.  
      * 
@@ -54,16 +57,34 @@ namespace vol {
      */
     template<typename process>
     auto asianing(process p, double start, double end, double dt) {
-      using namespace ranges;
       /*FIXME - hack.  can't figure out how to get iota 
       * and concepts to work
       * as desired.
       */ 
+      if(start >= end) {
+        std::ostringstream err;
+        err << "start (" << start << ") must be less than (" << end <<")" 
+            << std::endl;
+        throw std::invalid_argument(err.str());
+      }
+
       return [start, end, dt, p](double t) mutable {
-        size_t count = (std::max((std::min(end, t) - start), 0.) / dt);
-        return accumulate(ranges::views::iota(0u, count) 
-          | views::transform([start, end, dt](size_t i) { return i * dt + start; }) 
-          | views::transform(p), 0.) / count;};
+        if(t < start)
+          return 0.0;
+        interval_d period(iterator(start, dt), iterator(std::min(t, end), dt));
+        //FIXME - if this is 0, our tests fail.  If this is 1 they pass.  Why?
+#if 0 
+        std::cout << "p1: " << p(t) << std::endl; 
+#endif  
+        double result = 0.0;
+        for (auto ptr: period) {
+          result += p(ptr);
+        }
+        return result / utility::distance(period.begin(), period.end());};
+//        return std::accumulate(period.begin(), period.end(), 0., 
+//            [t, p](double agg, double inc) mutable -> double {
+//            return agg + p(inc);
+//            }) / utility::distance(period.begin(), period.end());};
     }
   }
 }

@@ -90,7 +90,6 @@ SCENARIO ("Market contracts are driven by stochastic processes..", "[market]") {
       CHECK( norm_d(2. * t) != norm_d(t) );
       CHECK( lognorm_d(t) != lognorm_d(t) );
       CHECK( lognorm_d(2. * t) != lognorm_d(t) );
-      CHECK( lin_d(2. * t) != lin_d(t) );
     }
     
     THEN("successive draws from the asianed process are different.") {
@@ -99,7 +98,6 @@ SCENARIO ("Market contracts are driven by stochastic processes..", "[market]") {
       CHECK( asianNorm(2. * t) != asianNorm(t) );
       CHECK( asianLogNorm(t) != asianLogNorm(t) );
       CHECK( asianLogNorm(2. * t) != asianLogNorm(t) );
-      CHECK( asianLin(2. * t) != asianLin(t) );
     }
   }
 }

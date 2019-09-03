@@ -1,4 +1,5 @@
 #pragma once 
+#include "utility.h"
 /**
  * FIXME - this class is here until I can figure out
  * what structure in the Nieber's range library gives
@@ -78,6 +79,14 @@ namespace vol::utility {
       return *this;
     }
 
+    T& operator*() {
+      return loc_;
+    }
+
+    const T& operator*() const {
+      return loc_;
+    }
+
     iterator&& operator--(int) const {
       iterator result(*this);
       --(*this);
@@ -140,7 +149,8 @@ namespace vol::utility {
     if(lhs.inc_ != rhs.inc_)
       return std::numeric_limits<int>::signaling_NaN();
 
-    return static_cast<int>((rhs.loc_ - lhs.loc_) / lhs.inc_);
+    return static_cast<int>((rhs.loc_ - lhs.loc_) / lhs.inc_ 
+        + 0.5 * sgn(rhs.loc_ - lhs.loc_));
   }
 
   template<typename T>

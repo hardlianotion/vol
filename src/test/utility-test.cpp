@@ -36,6 +36,31 @@ SCENARIO ("interval can be used for traversal std algorithms", "[utility]") {
         CHECK(rhs < lhs);  
       }
     }
+
+    WHEN("lhs and rhs have the same value") {
+      iterator<double> lhs = period.begin();
+      iterator<double> rhs = period.begin();
+
+      THEN("distance(lhs, rhs) = 0") {
+        CHECK(distance(lhs, rhs) == 0);
+        CHECK(distance(rhs, lhs) == 0);
+
+      }
+
+      WHEN("if we operate ++ on rhs 5 times") {
+        ++rhs; ++rhs; ++rhs; ++rhs; ++rhs;
+        THEN("lhs and rhs are 5 apart") {
+          CHECK(distance(lhs, rhs) == 5);
+        }
+      }
+      
+      WHEN("if we operate ++ on lhs 5 times") {
+        ++lhs; ++lhs; ++lhs; ++lhs; ++lhs;
+        THEN("lhs and rhs are 5 apart") {
+          CHECK(distance(lhs, rhs) == -5);
+        }
+      }
+    }
   }
 }
 
