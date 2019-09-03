@@ -128,7 +128,6 @@ namespace vol::utility {
   template<typename T>
   struct interval {
     typedef iterator<T> iterator;
-    typedef int ptr_diff;
     using iterator_category = typename iterator::iterator_category;
     using value_type = typename iterator::value_type;
     using difference_type = typename iterator::difference_type;
