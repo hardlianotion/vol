@@ -49,7 +49,7 @@ SCENARIO ("Option contracts price respect invariants.", "[market]") {
   }
 
   WHEN("asianing is carried out on an underlying path") {
-    using namespace vol::sim::proc;
+    using namespace vol::proc;
     using namespace vol::market;
 
     double begin = 1.;
@@ -84,7 +84,7 @@ SCENARIO ("Option contracts price respect invariants.", "[market]") {
 
 SCENARIO ("Market contracts are driven by stochastic processes..", "[market]") {
   WHEN("asianing is carried out using a stochastic process") {
-    using namespace vol::sim::proc;
+    using namespace vol::proc;
     using namespace vol::market;
 
     double begin = 0.;

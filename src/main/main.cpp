@@ -3,7 +3,9 @@
 
 #include <range/v3/range/conversion.hpp>
 
+#include "market/buildmarket.h"
 #include "market/market.h"
+#include "sim/buildprocess.h"
 #include "sim/process.h"
 #include "sim/simulation.h"
 #include "utility/interval.h"
@@ -12,7 +14,7 @@
 
 int main (int argc, char* argv[]) {
 
-  std::cout << "This is a start for a vol demo." << std::endl;
+  std::cout << "endhis is a start for a vol demo." << std::endl;
 
   /**
   * setup is an arithmetic asian option.
@@ -21,21 +23,19 @@ int main (int argc, char* argv[]) {
   using namespace vol::proc;
   using namespace vol;
 
-  double T = 1.;
+  double begin = 0.;
+  double end = 1.;
   double dt = 1. / 5.;
   double strike = 100.;
   double fut = 100.;
   double rate = 0.01;
   double vol = 0.2;
-  
-  //set up arthmetic and geometric asian process
-  auto tmp = norm(rate, vol);
+ 
 
-  typedef std::pair<double, double> pt_type;
   //FIXME - that could be prettier
   auto lognorm_path = run_over<
                         decltype(lognorm(fut, rate, vol)), std::vector<pt_type>>(
-                          lognorm(fut, rate, vol), 0., T, dt
+                          lognorm(fut, rate, vol), begin, end, dt
                         );
   auto identity = vol::utility::build_identity();
   
@@ -43,8 +43,8 @@ int main (int argc, char* argv[]) {
   auto exp = [](double t) {return std::exp(t);};
 
   auto agg = utility::aggregate(
-      asian::asianing<std::vector<pt_type>, decltype(identity), decltype(identity)>(identity, identity, 0., T, dt), 
-      asian::asianing<std::vector<pt_type>, decltype(log), decltype(exp)>(log, exp, 0., T, dt));
+      asian::asianing<std::vector<pt_type>, decltype(identity), decltype(identity)>(identity, identity, begin, end, dt), 
+      asian::asianing<std::vector<pt_type>, decltype(log), decltype(exp)>(log, exp, begin, end, dt));
 
   auto asians = vol::utility::compose(agg, lognorm_path);
   auto payoff = vanilla::payoff(option::CALL, strike);
@@ -53,13 +53,13 @@ int main (int argc, char* argv[]) {
   auto asianCalls = vol::utility::compose(calls, asians);
 
   //calculate the geometric asiam price
-  double geoPrice = asian::geomAsian(option::CALL, rate, fut, T, vol, strike, dt);
+  double geoPrice = asian::geomAsian(option::CALL, rate, fut, end, vol, strike, dt);
   
   //create payoffs with price processes
   auto paired_sample = ranges::to<std::vector>(
     ranges::views::generate_n(
-    [T, asianCalls]() mutable -> std::array<double, 2u> {
-      return asianCalls(T); }, 10));
+    [end, asianCalls]() mutable -> std::array<double, 2u> {
+      return asianCalls(end); }, 10));
   
   auto summary = vol::stats::summary(
       paired_sample.begin(), 

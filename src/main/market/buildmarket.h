@@ -6,9 +6,9 @@
 namespace vol::market {
 
   auto buildAsian(double begin, double end, double dt) {
-    using vol::sim::proc::identity;
+    using vol::proc::identity;
     return vol::market::asian::asianing<
-             vol::sim::proc::path_type,
+             vol::proc::path_type,
              decltype(identity), 
              decltype(identity)
            >(identity, identity, begin, end, dt);

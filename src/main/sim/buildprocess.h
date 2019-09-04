@@ -1,8 +1,9 @@
 #pragma once
 
 #include "utility/lambda.h"
+#include "sim/process.h"
 
-namespace vol::sim::proc {
+namespace vol::proc {
   auto identity = vol::utility::build_identity();
 
   typedef std::pair<double, double> pt_type;
