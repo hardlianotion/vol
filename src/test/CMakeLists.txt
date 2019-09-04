@@ -19,10 +19,11 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 add_executable(
   vol-tests 
    
+  lambda-test.cpp
   market-test.cpp
+  process-test.cpp
   simulation-test.cpp
   statistics-test.cpp
-  process-test.cpp
   utility-test.cpp
 )
 
