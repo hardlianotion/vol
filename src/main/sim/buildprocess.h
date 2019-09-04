@@ -2,7 +2,7 @@
 
 #include "utility/lambda.h"
 
-namespace test {
+namespace vol::sim::proc {
   auto identity = vol::utility::build_identity();
 
   typedef std::pair<double, double> pt_type;
@@ -54,13 +54,5 @@ namespace test {
       result.push_back(std::make_pair(t, lognorm(t)));
     }
     return result;
-  }
-
-  auto buildAsian(double begin, double end, double dt) {
-    return vol::market::asian::asianing<
-             path_type,
-             decltype(identity), 
-             decltype(identity)
-           >(identity, identity, begin, end, dt);
   }
 }

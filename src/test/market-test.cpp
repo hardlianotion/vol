@@ -5,7 +5,8 @@
 #include "sim/process.h"
 #include "sim/simulation.h"
 #include "utility/lambda.h"
-#include "market_test_objects.h"
+#include "sim/buildprocess.h"
+#include "market/buildmarket.h"
 
 
 SCENARIO ("Option contracts price respect invariants.", "[market]") {
@@ -48,7 +49,8 @@ SCENARIO ("Option contracts price respect invariants.", "[market]") {
   }
 
   WHEN("asianing is carried out on an underlying path") {
-    using namespace test;
+    using namespace vol::sim::proc;
+    using namespace vol::market;
 
     double begin = 1.;
     double end = 10.;
@@ -82,7 +84,9 @@ SCENARIO ("Option contracts price respect invariants.", "[market]") {
 
 SCENARIO ("Market contracts are driven by stochastic processes..", "[market]") {
   WHEN("asianing is carried out using a stochastic process") {
-    using namespace test;
+    using namespace vol::sim::proc;
+    using namespace vol::market;
+
     double begin = 0.;
     double end = 10.;
     double dt = 1.;
