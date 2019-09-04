@@ -33,11 +33,7 @@ int main (int argc, char* argv[]) {
  
 
   //FIXME - that could be prettier
-  auto lognorm_path = run_over<
-                        decltype(lognorm(fut, rate, vol)), std::vector<pt_type>>(
-                          lognorm(fut, rate, vol), begin, end, dt
-                        );
-  auto identity = vol::utility::build_identity();
+  auto lognorm_path = buildLogNormalPath(fut, rate, vol, begin, end, dt);
   
   auto log = [](double t) {return std::log(t);};
   auto exp = [](double t) {return std::exp(t);};

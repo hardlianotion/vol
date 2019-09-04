@@ -1,9 +1,8 @@
 #pragma once
 
 #include "utility/lambda.h"
-#include "sim/process.h"
 
-namespace vol::proc {
+namespace test {
   auto identity = vol::utility::build_identity();
 
   typedef std::pair<double, double> pt_type;
@@ -44,13 +43,24 @@ namespace vol::proc {
     return result;
   }
 
-   auto 
+    path_type 
   buildLogNormalPath(
     double level, double mu, double vol, double begin, double end, double dt
   ) {
-    return run_over<
-            decltype(lognorm(level, mu, vol)), 
-            std::vector<pt_type>
-          >(lognorm(level, mu, vol), begin, end, dt);
+    path_type result;
+    auto lognorm = vol::proc::lognorm(level, mu, vol);
+
+    for (auto t = begin; t < end; t += dt) {
+      result.push_back(std::make_pair(t, lognorm(t)));
+    }
+    return result;
+  }
+
+  auto buildAsian(double begin, double end, double dt) {
+    return vol::market::asian::asianing<
+             path_type,
+             decltype(identity), 
+             decltype(identity)
+           >(identity, identity, begin, end, dt);
   }
 }
