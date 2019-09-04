@@ -1,6 +1,6 @@
 #pragma once 
 #include <functional>
-#include <iostream>
+
 
 /**
  * This implementation comes from Wu Yongwei.
@@ -17,23 +17,64 @@ namespace vol::utility {
       };
   }
    
-  template <typename Fn>
-  auto compose (Fn fn)
+  template <typename fn_type>
+  auto compose (fn_type fn)
   {
-      return [=](auto&&... x) -> decltype(auto)
-      {
+      return [=](auto&&... x) -> decltype(auto) {
           return fn(std::forward<decltype(x)>(x)...);
       };
   }
    
-  template <typename Fn, typename... Fargs>
-  auto compose (Fn fn, Fargs... args)
+  template <typename fn_type, typename... fn_types>
+  auto compose (fn_type fn, fn_types... args)
   {
-      return [=](auto&&... x) -> decltype(auto)
-      {
+      return [=](auto&&... x) -> decltype(auto) {
           return fn(
               compose(args...)(std::forward<decltype(x)>(x)...));
       };
   }
+
+  template<
+    typename D, 
+    typename R, 
+    size_t N, 
+    typename fn_type>
+  void agg_impl(
+    D x, 
+    std::array<R, N>& result, 
+    fn_type fn
+  ) {
+    result[N - 1] = fn(x);
+  }
+
+  template<
+    typename D, 
+    typename R, 
+    size_t N, 
+    typename fn_type,
+    typename... fn_types> 
+  void agg_impl(
+    D x, 
+    std::array<R, N>& result, 
+    fn_type fn,
+    fn_types... fns 
+  ) {
+    static_assert(N > (sizeof...(fn_types)));
+    size_t i = N - 1 - sizeof...(fn_types);
+    agg_impl(x, result, fns...);
+    result[i] = fn(x);
+  }
+
+  template <typename fn_type, typename... fn_types>
+  auto aggregate(fn_type fn, fn_types... fns) {
+    return [fn, fns...](auto x) 
+      -> std::array<decltype(fn(x)), sizeof...(fns) + 1>&& {
+      std::array<decltype(fn(x)), sizeof...(fns)+ 1> result;
+      agg_impl(x, result, fn, fns...);
+      return std::move(result);
+    };
+  }
 }
+
+
 
