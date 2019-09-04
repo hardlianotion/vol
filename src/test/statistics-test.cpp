@@ -27,10 +27,7 @@ SCENARIO ("samples are used to summarise simulations..", "[sample]") {
   
   WHEN("a 2d sample is constructed") {
     using namespace vol::stats;
-    std::vector<double> sample = {0., 1., 2., 3., 4.}; 
-    std::vector<double> sample2 = {4., 3., 2., 1., 0.};
-    auto sample_pair = ranges::views::zip(sample, sample2);
-
+    std::vector<std::array<double, 2>> sample_pair = {{0., 4.}, {1., 3.}, {2., 2.}, {3., 1.}, {4., 0.}}; 
     THEN("sample_sums delivers sample size, mean and variance") {
       auto summary = covariance(sample_pair.begin(), sample_pair.end());
 
@@ -46,7 +43,7 @@ SCENARIO ("samples are used to summarise simulations..", "[sample]") {
       double c_mean = 2.1;
 
       THEN("we can calculate a mean and variance.") {
-        auto result = summary(sample_pair.begin(), sample_pair.end(), c_mean, 5u);
+        auto result = summary(sample_pair.begin(), sample_pair.end(), c_mean);
 
         CHECK(std::get<1>(result) == 1.9);
         CHECK(std::get<2>(result) == 0.);

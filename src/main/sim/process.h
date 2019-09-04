@@ -1,4 +1,5 @@
 #pragma once
+#include <sstream>
 #include "simulation.h"
 
 
@@ -47,6 +48,32 @@ namespace vol::proc {
   >
   auto process(const map_type& map, const gen_type& gen) {
     return [map, gen](double t) {return map(t,gen(t)); }; 
+  }
+
+  /**
+   * Given a process, run it over a time period and return its output
+   */
+
+template <
+  typename proc_type,
+  typename container_type
+  >
+  auto run_over(proc_type proc, double begin, double end, double dt) {
+    if(begin >= end) {  
+      std::ostringstream err;
+      err << "begin (" << begin << ") must be less than (" << end <<")" 
+          << std::endl;
+      throw std::invalid_argument(err.str());
+    }
+
+    return [proc, begin, end, dt] (double t) mutable -> container_type&& {
+      container_type result;
+
+      for (double s = begin; s < std::min(t, end); s += dt) {
+        result.push_back(std::make_pair(t, proc(s)));
+      }
+      return std::move(result);
+    };
   }
 
   /**

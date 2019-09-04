@@ -8,30 +8,29 @@
  * Wu Yongwei - https://yongweiwu.wordpress.com/2014/12/07/study-notes-functional-programming-with-cplusplus/comment-page-1/#comment-14257
 */
 namespace vol::utility {
-   
-  auto compose ()
-  {
-      return [](auto&& x) -> decltype(auto)
-      {
-          return std::forward<decltype(x)>(x);
-      };
+  
+  inline auto build_identity() {return [](auto x) -> decltype(x) {return x;};}
+
+  inline auto compose () {
+    return [](auto&& x) -> decltype(auto)
+    {
+      return std::forward<decltype(x)>(x);
+    };
   }
    
   template <typename fn_type>
-  auto compose (fn_type fn)
-  {
-      return [=](auto&&... x) -> decltype(auto) {
-          return fn(std::forward<decltype(x)>(x)...);
-      };
+  auto compose (fn_type fn) {
+    return [=](auto&&... x) mutable  -> decltype(auto) {
+      return fn(std::forward<decltype(x)>(x)...);
+    };
   }
    
   template <typename fn_type, typename... fn_types>
-  auto compose (fn_type fn, fn_types... args)
-  {
-      return [=](auto&&... x) -> decltype(auto) {
-          return fn(
-              compose(args...)(std::forward<decltype(x)>(x)...));
-      };
+  auto compose (fn_type fn, fn_types... args) {
+    return [=](auto&&... x) mutable -> decltype(auto) {
+      return fn(
+        compose(args...)(std::forward<decltype(x)>(x)...));
+    };
   }
 
   template<
@@ -67,14 +66,21 @@ namespace vol::utility {
 
   template <typename fn_type, typename... fn_types>
   auto aggregate(fn_type fn, fn_types... fns) {
-    return [fn, fns...](auto x) 
+    return [fn, fns...](auto x) mutable
       -> std::array<decltype(fn(x)), sizeof...(fns) + 1>&& {
       std::array<decltype(fn(x)), sizeof...(fns)+ 1> result;
       agg_impl(x, result, fn, fns...);
       return std::move(result);
     };
   }
+  
+  template<typename fn_type, typename container_type>
+  auto replicate(fn_type fn) {
+    return [fn](container_type&& x) mutable -> container_type&& {
+      container_type result = x;
+      std::transform(result.begin(), result.end(), result.begin(), fn);
+      return std::move(result);
+    };
+  }
 }
-
-
 

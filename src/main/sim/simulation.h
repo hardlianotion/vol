@@ -97,11 +97,11 @@ namespace vol {
         [](auto accum, auto next) -> summary_type_2d {
           return {
             get<0>(accum),
-            get<1>(accum) + get<0>(next), 
-            get<2>(accum) + get<1>(next),
-            get<3>(accum) + get<0>(next)*get<0>(next), 
-            get<4>(accum) + get<0>(next)*get<1>(next), 
-            get<5>(accum) + get<1>(next)*get<1>(next), 
+            get<1>(accum) + next[0], 
+            get<2>(accum) + next[1],
+            get<3>(accum) + next[0] * next[0], 
+            get<4>(accum) + next[0] * next[1], 
+            get<5>(accum) + next[1] * next[1], 
           };});
     }
 
@@ -149,8 +149,7 @@ namespace vol {
     summary_type summary(
       const forward_iterator& begin, 
       const forward_iterator& end, 
-      double control_mean, 
-      size_t size
+      double control_mean 
     ) {
       using namespace std;
       forward_iterator ptr = begin;

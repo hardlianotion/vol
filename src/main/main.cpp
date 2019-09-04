@@ -1,4 +1,5 @@
 #include <iostream>
+#include <functional>
 
 #include <range/v3/range/conversion.hpp>
 
@@ -6,6 +7,7 @@
 #include "sim/process.h"
 #include "sim/simulation.h"
 #include "utility/interval.h"
+#include "utility/lambda.h"
 
 
 int main (int argc, char* argv[]) {
@@ -37,27 +39,41 @@ int main (int argc, char* argv[]) {
 
   //set up arthmetic and geometric asian process
   auto tmp = norm(rate, vol);
-  auto asianNorm = asian::asianing(tmp, 0., T, dt);
-  auto geoAsian = asian::geomAsianing(lognorm(fut, rate, vol), 0., T, dt);
-  auto asian = asian::asianing(lognorm(fut, rate, vol), 0., T, dt);
+
+  typedef std::pair<double, double> pt_type;
+  //FIXME - that could be prettier
+  auto lognorm_path = run_over<
+                        decltype(lognorm(fut, rate, vol)), std::vector<pt_type>>(
+                          lognorm(fut, rate, vol), 0., T, dt
+                        );
+  auto identity = vol::utility::build_identity();
+  
+  auto log = [](double t) {return std::log(t);};
+  auto exp = [](double t) {return std::exp(t);};
+
+  auto agg = utility::aggregate(
+      asian::asianing<std::vector<pt_type>, decltype(identity), decltype(identity)>(identity, identity, 0., T, dt), 
+      asian::asianing<std::vector<pt_type>, decltype(log), decltype(exp)>(log, exp, 0., T, dt));
+
+  auto asians = vol::utility::compose(agg, lognorm_path);
+  auto payoff = vanilla::payoff(option::CALL, strike);
+  auto calls = vol::utility::replicate<decltype(payoff), std::array<double, 2>>(payoff);
+
+  auto asianCalls = vol::utility::compose(calls, asians);
 
   //calculate the geometric asiam price
   double geoPrice = asian::geomAsian(option::CALL, rate, fut, T, vol, strike, dt);
   
   //create payoffs with price processes
-  auto call = vanilla::payoff(option::CALL, strike);
-  auto asianCall = [call, asian](double t) mutable {double result = call(asian(t));std::cout<<"asc " << result<< std::endl;  return result;};
-  auto geoAsianCall = [call, geoAsian](double t) mutable {double result = call(geoAsian(t)); std::cout<<"gsc " << result<< std::endl;  return result;};
-  
   auto paired_sample = ranges::to<std::vector>(
     ranges::views::generate_n(
-    [T, asianCall, geoAsianCall]() mutable -> std::tuple<double, double> {
-      return std::make_tuple(asianCall(T), geoAsianCall(T)); }, 10));
+    [T, asianCalls]() mutable -> std::array<double, 2u> {
+      return asianCalls(T); }, 10));
   
   auto summary = vol::stats::summary(
       paired_sample.begin(), 
       paired_sample.end(), 
-      geoPrice, 10000);
+      geoPrice);
 
   std::cout << " count = " << std::get<0>(summary)
              << ", mean = " << std::get<1>(summary)

@@ -4,6 +4,9 @@
 #include "market/market.h"
 #include "sim/process.h"
 #include "sim/simulation.h"
+#include "utility/lambda.h"
+#include "market_test_objects.h"
+
 
 SCENARIO ("Option contracts price respect invariants.", "[market]") {
   using namespace vol::market::vanilla;
@@ -44,61 +47,55 @@ SCENARIO ("Option contracts price respect invariants.", "[market]") {
     }
   }
 
-  WHEN("asianing is carried out on an underlying process") {
-    using vol::proc::constant;
-    using vol::proc::linear;
-    double t = 10.;
+  WHEN("asianing is carried out on an underlying path") {
+    using namespace test;
+
+    double begin = 1.;
+    double end = 10.;
+    double longPathEnd= 20.;
+    double shortPathEnd= 9.;
     double dt = 1.;
-    auto asianConst = market::asian::asianing(constant(1.), 1., t, dt);
     
-    THEN("the output is the sum of he process samples over the period") {
-      CHECK( asianConst(t) == 1. );
+    path_type constPath = buildConstPath(1., begin, end, dt);
+
+    auto asian = buildAsian(begin, end, dt);
+    
+    THEN("the output is the sum of he process samples over period [start, end)") {
+      CHECK( asian(constPath) == 1. );
     }
-    
-    auto asianLin = market::asian::asianing(linear(1., 1.), 1., t, dt);
+    double level = 1.;
+    double scale = 1.;
+    path_type linPath = buildLinearPath(level, scale, begin, end, dt);
+    path_type longLinPath = buildLinearPath(level, scale, begin, longPathEnd, dt);
+    path_type shortLinPath = buildLinearPath(level, scale, begin, shortPathEnd, dt);
     
     THEN("the output is the average of the process samples over the period") {
-      CHECK( asianLin(t) == 6.0);
-      CHECK_THAT( asianLin(t - 1.), Catch::WithinAbs(4.888889, 1e-5 ));
+      CHECK( asian(linPath) == 6.0);
+      CHECK_THAT( asian(shortLinPath), Catch::WithinAbs(4.888889, 1e-5 ));
     }
 
     THEN("Underlying process samples are not contributed past expiry.") {
-      CHECK( asianLin(20.) == 6.0 );
+      CHECK( asian(longLinPath) == 6.0 );
     }
   }
 }
 
 SCENARIO ("Market contracts are driven by stochastic processes..", "[market]") {
   WHEN("asianing is carried out using a stochastic process") {
-    using vol::proc::constant;
-    using vol::proc::linear;
-    using vol::proc::norm;
-    using vol::proc::lognorm;
-    double t = 10.;
+    using namespace test;
+    double begin = 0.;
+    double end = 10.;
     double dt = 1.;
 
-    auto lin_d = linear(1., 1.);
-    auto norm_d = norm(0.1, 0.4);
-    auto lognorm_d = lognorm(1., .1, 0.4);
+    double level = 1.;
+    double mu = 0.1;
+    double vol= 0.4;
     
-    auto asianLin = vol::market::asian::asianing(linear(1., 1.), 0., t, dt);
-    auto asianNorm = vol::market::asian::asianing(norm(0.1, 0.4), 0., t, dt);
-    auto asianLogNorm = vol::market::asian::asianing(lognorm(1, 0.1, 0.4), 0., t, dt);
+    auto asian = buildAsian(begin, end, dt);
     
-    THEN("successive draws from the underlying process are different.") {
-      CHECK( t != 2. * t );
-      CHECK( norm_d(t) != norm_d(t) );
-      CHECK( norm_d(2. * t) != norm_d(t) );
-      CHECK( lognorm_d(t) != lognorm_d(t) );
-      CHECK( lognorm_d(2. * t) != lognorm_d(t) );
-    }
-    
-    THEN("successive draws from the asianed process are different.") {
-      CHECK( t != 2. * t );
-      CHECK( asianNorm(t) != asianNorm(0.5*t) );
-      CHECK( asianNorm(2. * t) != asianNorm(t) );
-      CHECK( asianLogNorm(t) != asianLogNorm(t) );
-      CHECK( asianLogNorm(2. * t) != asianLogNorm(t) );
+    THEN("successive paths drawn from stochastic processes are different.") {
+      CHECK( asian(buildNormPath(mu, vol, begin, end, dt)) != asian(buildNormPath(mu, vol, begin, end, dt)));
+      CHECK( asian(buildLogNormalPath(level, mu, vol, begin, end, dt)) != asian(buildLogNormalPath(level, mu, vol, begin, end, dt)));
     }
   }
 }

@@ -54,53 +54,25 @@ namespace vol {
 
     /**
      * take a process and average the output between the time
-     * start and end.
+     * start and end.  Transform each point with pt_fn before averaging
+     * and the averaged result with path_fn.
      */
-    template<typename process>
-    auto asianing(process p, double start, double end, double dt) {
-      if(start >= end) {
-        std::ostringstream err;
-        err << "start (" << start << ") must be less than (" << end <<")" 
-            << std::endl;
-        throw std::invalid_argument(err.str());
+    template<typename path_type, typename pt_fn_type, typename path_fn_type>
+    auto asianing(
+      pt_fn_type pt_fn, 
+      path_fn_type path_fn, 
+      double begin, 
+      double end,
+      double dt
+    ) {
+      return [path_fn, pt_fn, begin, end, dt](const path_type& path) mutable {
+      double result = 0.;
+
+      for (auto pt: path) {
+        if(pt.first >= begin && pt.first < end) 
+          result += pt_fn(pt.second);
       }
-
-      return [start, end, dt, p](double t) mutable {
-        double result = 0.;
-        if(t < start) {
-          return result;
-        }
-
-        for (double s = start; s < std::min(t, end); s += dt) {
-          result += p(s);
-        }
-        return result / ((end - start) / dt);};
-    }
-
-    /**
-     * Take a geometric average over [start, end).  
-     * FIXME - We can express this interms of asianing, above, but 
-     * we are struggling with caching issues with random generators
-     */
-    template<typename process>
-    auto geomAsianing(process p, double start, double end, double dt) {
-      if(start >= end) {
-        std::ostringstream err;
-        err << "start (" << start << ") must be less than (" << end <<")" 
-            << std::endl;
-        throw std::invalid_argument(err.str());
-      }
-      
-      return [start, end, dt, p](double t) mutable {
-        double result = 0.;
-        if(t < start) {
-          return result;
-        }
-
-        for (double s = start; s < std::min(t, end); s += dt) {
-          result += log(p(s));
-        }
-        return exp(result / ((end - start) / dt));};
+      return path_fn(result / ((end - begin) / dt));};
     }
   }
 }
