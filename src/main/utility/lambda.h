@@ -74,8 +74,8 @@ namespace vol::utility {
     };
   }
   
-  template<typename fn_type, typename container_type>
-  auto replicate(fn_type fn) {
+  template<typename payoff_type, typename container_type>
+  auto replicate(payoff_type fn, container_type) {
     return [fn](container_type&& x) mutable -> container_type&& {
       container_type result = x;
       std::transform(result.begin(), result.end(), result.begin(), fn);

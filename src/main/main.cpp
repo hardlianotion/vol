@@ -14,7 +14,7 @@
 
 int main (int argc, char* argv[]) {
 
-  std::cout << "endhis is a start for a vol demo." << std::endl;
+  std::cout << "This is a start for a vol demo." << std::endl;
 
   /**
   * setup is an arithmetic asian option.
@@ -33,24 +33,25 @@ int main (int argc, char* argv[]) {
  
 
   //FIXME - that could be prettier
-  auto lognorm_path = buildLogNormalPath(fut, rate, vol, begin, end, dt);
-  
+  auto logNormPath = buildLogNormalPath(fut, rate, vol, begin, end, dt);
+ 
+  std::cout << "built lognormal paths." << std::endl; 
   auto log = [](double t) {return std::log(t);};
   auto exp = [](double t) {return std::exp(t);};
 
-  auto agg = utility::aggregate(
-      asian::asianing<std::vector<pt_type>, decltype(identity), decltype(identity)>(identity, identity, begin, end, dt), 
-      asian::asianing<std::vector<pt_type>, decltype(log), decltype(exp)>(log, exp, begin, end, dt));
+  auto asian = buildAsian(begin, end, dt);
+  auto geomAsian = buildGeometricAsian(begin, end, dt);
 
-  auto asians = vol::utility::compose(agg, lognorm_path);
+  auto agg = utility::aggregate(asian, geomAsian);
+  auto asians = utility::compose(agg, logNormPath);
   auto payoff = vanilla::payoff(option::CALL, strike);
-  auto calls = vol::utility::replicate<decltype(payoff), std::array<double, 2>>(payoff);
+  auto calls = utility::replicate(payoff, std::array<double, 2>());
 
   auto asianCalls = vol::utility::compose(calls, asians);
-
+  std::cout << "built asian options that share an asset path." << std::endl;
   //calculate the geometric asiam price
   double geoPrice = asian::geomAsian(option::CALL, rate, fut, end, vol, strike, dt);
-  
+ 
   //create payoffs with price processes
   auto paired_sample = ranges::to<std::vector>(
     ranges::views::generate_n(
