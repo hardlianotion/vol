@@ -17,17 +17,18 @@ namespace vol::utility {
       return std::forward<decltype(x)>(x);
     };
   }
-   
+
   template <typename fn_type>
-  auto compose (fn_type fn) {
-    return [=](auto&&... x) mutable  -> decltype(auto) {
+  auto compose (fn_type&& fn) {
+    return [fn=std::forward<decltype(fn)>(fn)](auto&&... x) mutable  -> decltype(auto) {
       return fn(std::forward<decltype(x)>(x)...);
     };
   }
    
   template <typename fn_type, typename... fn_types>
   auto compose (fn_type fn, fn_types... args) {
-    return [=](auto&&... x) mutable -> decltype(auto) {
+    return [fn=std::forward<decltype(fn)>(fn),
+            args...](auto&&... x) mutable -> decltype(auto) {
       return fn(
         compose(args...)(std::forward<decltype(x)>(x)...));
     };
@@ -56,7 +57,7 @@ namespace vol::utility {
     D x, 
     std::array<R, N>& result, 
     fn_type fn,
-    fn_types... fns 
+    fn_types... fns
   ) {
     static_assert(N > (sizeof...(fn_types)));
     size_t i = N - 1 - sizeof...(fn_types);
@@ -66,20 +67,20 @@ namespace vol::utility {
 
   template <typename fn_type, typename... fn_types>
   auto aggregate(fn_type fn, fn_types... fns) {
-    return [fn, fns...](auto x) mutable
-      -> std::array<decltype(fn(x)), sizeof...(fns) + 1>&& {
+    return [&fn, fns...](auto x) mutable
+      -> std::array<decltype(fn(x)), sizeof...(fns) + 1> {
       std::array<decltype(fn(x)), sizeof...(fns)+ 1> result;
       agg_impl(x, result, fn, fns...);
-      return std::move(result);
+      return result;
     };
   }
   
   template<typename payoff_type, typename container_type>
   auto replicate(payoff_type fn, container_type) {
-    return [fn](container_type&& x) mutable -> container_type&& {
+    return [&fn](container_type&& x) mutable -> container_type {
       container_type result = x;
       std::transform(result.begin(), result.end(), result.begin(), fn);
-      return std::move(result);
+      return result;
     };
   }
 }

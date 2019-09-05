@@ -41,7 +41,7 @@ SCENARIO ("Option contracts price respect invariants.", "[market]") {
       CHECK_THAT( call_v - put_v, Catch::WithinAbs(fwd_v, 1.e-8) );
     }
 
-    THEN("The greeks are relateve via the pde") {
+    THEN("The greeks are related via the pde") {
       CHECK_THAT( theta_v + v*v*itmf*itmf*gamma_v/2., Catch::WithinAbs(r/t*rho_v, 1.e-8) );
     }
   }

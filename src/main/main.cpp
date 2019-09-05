@@ -36,27 +36,46 @@ int main (int argc, char* argv[]) {
   auto logNormPath = buildLogNormalPath(fut, rate, vol, begin, end, dt);
  
   std::cout << "built lognormal paths." << std::endl; 
-  auto log = [](double t) {return std::log(t);};
-  auto exp = [](double t) {return std::exp(t);};
 
   auto asian = buildAsian(begin, end, dt);
   auto geomAsian = buildGeometricAsian(begin, end, dt);
+  auto path1 = logNormPath(10);
+
+  for(auto pt: path1) {
+    std::cout << "1c: " << pt.first << ", " << pt.second << std::endl;
+  }
+  auto path2 = logNormPath(10);
+  for(auto pt: path1) {
+    std::cout << "1c2: " << pt.first << ", " << pt.second << std::endl;
+  }
 
   auto agg = utility::aggregate(asian, geomAsian);
   auto asians = utility::compose(agg, logNormPath);
   auto payoff = vanilla::payoff(option::CALL, strike);
-  auto calls = utility::replicate(payoff, std::array<double, 2>());
+  auto calls = utility::replicate(payoff, std::array<double, 2u>());
 
   auto asianCalls = vol::utility::compose(calls, asians);
   std::cout << "built asian options that share an asset path." << std::endl;
-  //calculate the geometric asiam price
+  //calculate the geometric asian price
   double geoPrice = asian::geomAsian(option::CALL, rate, fut, end, vol, strike, dt);
- 
-  //create payoffs with price processes
-  auto paired_sample = ranges::to<std::vector>(
-    ranges::views::generate_n(
-    [end, asianCalls]() mutable -> std::array<double, 2u> {
-      return asianCalls(end); }, 10));
+  auto path = asianCalls(10);
+  for(auto pt: path) {
+    std::cout << "ac: " << pt  << ", " << pt << std::endl;
+  }
+  for(auto pt: path) {
+    std::cout << "ac2: " << pt  << ", " << pt << std::endl;
+  }
+
+//create payoffs with price processes
+//  auto paired_sample = ranges::to<std::vector>(
+//    ranges::views::generate_n(
+//    [end, asianCalls]() mutable -> std::array<double, 2u> {
+//      return asianCalls(end); }, 10));
+  using sample_container_type = std::vector<std::array<double, 2u>>;
+  auto collector = [&end, &asianCalls]() mutable -> std::array<double, 2u> {
+    return asianCalls(end);
+  };
+  auto paired_sample = vol::proc::sample<decltype(collector), sample_container_type >(collector, 10);
   
   auto summary = vol::stats::summary(
       paired_sample.begin(), 

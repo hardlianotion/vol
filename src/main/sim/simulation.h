@@ -2,6 +2,7 @@
 
 #include <random>
 #include <tuple>
+#include <iostream>
 
 #include <range/v3/all.hpp>
 
@@ -21,7 +22,12 @@ namespace vol {
     auto create(dist_type&& adapter) {
       std::random_device rd{};
       gen_type gen(rd());
-      return [adapter, gen]() mutable { return adapter(gen);};
+      return [adapter, gen]() mutable {
+        double temp = adapter(gen);
+        std::cout << "The address of gen, adapter is" << &gen << ", " << &adapter << ", adval: "<< temp << std::endl;
+
+        return temp;
+      };
     }
 
     // generators
@@ -47,7 +53,7 @@ namespace vol {
     
     //test generator
     inline auto constant(double level) {
-      return [level]() {return level;};
+      return [level]() { return level; };
     }
   };
 

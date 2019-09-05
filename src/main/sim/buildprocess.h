@@ -48,9 +48,10 @@ namespace vol::proc {
   buildLogNormalPath(
     double level, double mu, double vol, double begin, double end, double dt
   ) {
+    auto ln = lognorm(level, mu, vol);
     return run_over<
-            decltype(lognorm(level, mu, vol)), 
+            decltype(ln),
             std::vector<pt_type>
-          >(lognorm(level, mu, vol), begin, end, dt);
+          >(ln, begin, end, dt);
   }
 }
