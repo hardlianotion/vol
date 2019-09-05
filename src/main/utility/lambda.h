@@ -20,15 +20,14 @@ namespace vol::utility {
 
   template <typename fn_type>
   auto compose (fn_type&& fn) {
-    return [fn=std::forward<decltype(fn)>(fn)](auto&&... x) mutable  -> decltype(auto) {
+    return [=](auto&&... x) mutable  -> decltype(auto) {
       return fn(std::forward<decltype(x)>(x)...);
     };
   }
    
   template <typename fn_type, typename... fn_types>
   auto compose (fn_type fn, fn_types... args) {
-    return [fn=std::forward<decltype(fn)>(fn),
-            args...](auto&&... x) mutable -> decltype(auto) {
+    return [=](auto&&... x) mutable -> decltype(auto) {
       return fn(
         compose(args...)(std::forward<decltype(x)>(x)...));
     };
