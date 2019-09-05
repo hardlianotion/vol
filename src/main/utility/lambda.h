@@ -66,7 +66,7 @@ namespace vol::utility {
 
   template <typename fn_type, typename... fn_types>
   auto aggregate(fn_type fn, fn_types... fns) {
-    return [&fn, fns...](auto x) mutable
+    return [fn, fns...](auto x) mutable
       -> std::array<decltype(fn(x)), sizeof...(fns) + 1> {
       std::array<decltype(fn(x)), sizeof...(fns)+ 1> result;
       agg_impl(x, result, fn, fns...);

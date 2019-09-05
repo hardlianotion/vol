@@ -1,14 +1,11 @@
 #include <iostream>
 #include <functional>
 
-#include <range/v3/range/conversion.hpp>
-
 #include "market/buildmarket.h"
 #include "market/market.h"
 #include "sim/buildprocess.h"
 #include "sim/process.h"
 #include "sim/simulation.h"
-#include "utility/interval.h"
 #include "utility/lambda.h"
 
 
@@ -35,7 +32,7 @@ int main (int argc, char* argv[]) {
   //FIXME - that could be prettier
   auto logNormPath = buildLogNormalPath(fut, rate, vol, begin, end, dt);
  
-  std::cout << "built lognormal paths." << std::endl; 
+  std::cout << "built lognormal paths." << std::endl;
 
   auto asian = buildAsian(begin, end, dt);
   auto geomAsian = buildGeometricAsian(begin, end, dt);
