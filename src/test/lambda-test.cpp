@@ -51,8 +51,8 @@ SCENARIO ("Function composition allows caching in the framework", "[compose]") {
       std::array<double, 2> output = test(0.4);
       std::array<double, 2> reference = {linear(0.4), constant(0.4)};
 
-//      CHECK_THAT( output[0], Catch::WithinAbs(reference[0], 1e-6 ));
-//      CHECK_THAT( output[1], Catch::WithinAbs(reference[1], 1e-6 ));
+      CHECK_THAT( output[0], Catch::WithinAbs(reference[0], 1e-6 ));
+      CHECK_THAT( output[1], Catch::WithinAbs(reference[1], 1e-6 ));
     }
   }
 }

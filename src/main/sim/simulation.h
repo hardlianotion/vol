@@ -47,7 +47,7 @@ namespace vol {
     
     //test generator
     inline auto constant(double level) {
-      return [level]() {return level;};
+      return [level]() { return level; };
     }
   };
 

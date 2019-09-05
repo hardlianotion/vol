@@ -15,7 +15,8 @@ namespace vol::proc {
   inline auto norm(double mu, double sigma) {
     auto impl = generator::normal(0., 1.);
     return [mu, sigma, impl](double t) mutable {
-      return (sigma * sqrt(t) + mu) * impl();};
+        auto z = impl();
+      return (sigma * sqrt(t) + mu) * z;};
   } 
 
   //FIXME - study composition viz.
@@ -66,13 +67,13 @@ template <
       throw std::invalid_argument(err.str());
     }
 
-    return [proc, begin, end, dt] (double t) mutable -> container_type&& {
+    return [proc, begin, end, dt] (double t) mutable -> container_type {
       container_type result;
 
       for (double s = begin; s < std::min(t, end); s += dt) {
-        result.push_back(std::make_pair(t, proc(s)));
+        result.push_back(std::make_pair(s, proc(s)));
       }
-      return std::move(result);
+      return result;
     };
   }
 
@@ -108,6 +109,16 @@ template <
     auto vol = [sigma](double s, double) {return sigma;};
     auto gen = bm();
     return euler(vol, drift, gen, dt);
+  }
+
+  //create n samples from a
+  template<typename proc_type, typename container_type>
+  auto sample(proc_type& proc, size_t n) -> container_type {
+    container_type result;
+    for(size_t i = 0; i < n; ++i) {
+      result.push_back(proc());
+    }
+    return result;
   }
 }
 

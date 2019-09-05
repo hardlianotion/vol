@@ -1,14 +1,11 @@
 #include <iostream>
 #include <functional>
 
-#include <range/v3/range/conversion.hpp>
-
 #include "market/buildmarket.h"
 #include "market/market.h"
 #include "sim/buildprocess.h"
 #include "sim/process.h"
 #include "sim/simulation.h"
-#include "utility/interval.h"
 #include "utility/lambda.h"
 
 
@@ -35,9 +32,7 @@ int main (int argc, char* argv[]) {
   //FIXME - that could be prettier
   auto logNormPath = buildLogNormalPath(fut, rate, vol, begin, end, dt);
  
-  std::cout << "built lognormal paths." << std::endl; 
-  auto log = [](double t) {return std::log(t);};
-  auto exp = [](double t) {return std::exp(t);};
+  std::cout << "built lognormal paths." << std::endl;
 
   auto asian = buildAsian(begin, end, dt);
   auto geomAsian = buildGeometricAsian(begin, end, dt);
@@ -45,19 +40,19 @@ int main (int argc, char* argv[]) {
   auto agg = utility::aggregate(asian, geomAsian);
   auto asians = utility::compose(agg, logNormPath);
   auto payoff = vanilla::payoff(option::CALL, strike);
-  auto calls = utility::replicate(payoff, std::array<double, 2>());
+  auto calls = utility::replicate(payoff, std::array<double, 2u>());
 
   auto asianCalls = vol::utility::compose(calls, asians);
   std::cout << "built asian options that share an asset path." << std::endl;
-  //calculate the geometric asiam price
+  //calculate the geometric asian price
   double geoPrice = asian::geomAsian(option::CALL, rate, fut, end, vol, strike, dt);
- 
-  //create payoffs with price processes
-  auto paired_sample = ranges::to<std::vector>(
-    ranges::views::generate_n(
-    [end, asianCalls]() mutable -> std::array<double, 2u> {
-      return asianCalls(end); }, 10));
-  
+
+  using sample_container_type = std::vector<std::array<double, 2u>>;
+  auto collector = [&end, &asianCalls]() mutable -> std::array<double, 2u> {
+    return asianCalls(end);
+  };
+  auto paired_sample = vol::proc::sample<decltype(collector), sample_container_type >(collector, 10);
+
   auto summary = vol::stats::summary(
       paired_sample.begin(), 
       paired_sample.end(), 
