@@ -47,8 +47,10 @@ int main (int argc, char* argv[]) {
   //calculate the geometric asian price
   double geoPrice = asian::geomAsian(option::CALL, rate, fut, end, vol, strike, dt);
 
+  std::cout << "Analytic geometric asian price: " << geoPrice << std::endl;
+
   using sample_container_type = std::vector<std::array<double, 2u>>;
-  auto collector = [&end, &asianCalls]() mutable -> std::array<double, 2u> {
+  auto collector = [end, &asianCalls]() mutable -> std::array<double, 2u> {
     return asianCalls(end);
   };
   auto paired_sample = vol::proc::sample<decltype(collector), sample_container_type >(collector, 10);
