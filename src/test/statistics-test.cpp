@@ -43,8 +43,8 @@ SCENARIO ("samples are used to summarise simulations..", "[sample]") {
       THEN("we can calculate a mean and variance.") {
         auto result = summary(sample_pair.begin(), sample_pair.end(), c_mean);
 
-        CHECK(std::get<1>(result) == 1.9);
-        CHECK(std::get<2>(result) == 0.);
+        CHECK_THAT(std::get<1>(result), Catch::WithinAbs(1.9, 1.e-6));
+        CHECK_THAT(std::get<2>(result), Catch::WithinAbs(0., 1e-6));
       }
     }
   }
