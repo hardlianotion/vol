@@ -28,7 +28,7 @@ int main (int argc, char* argv[]) {
   double fut = 100.;
   double rate = 0.01;
   double vol = 0.2;
- 
+
 
   //FIXME - that could be prettier
   auto logNormPath = buildLogNormalPath(fut, rate, vol, begin, end, dt);

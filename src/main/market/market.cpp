@@ -1,10 +1,12 @@
-#include "stats.hpp"
 #include "market.h"
 
 namespace vol {
   namespace market::vanilla {
-   
-    using namespace stats;
+    namespace {
+      inline double pnorm(double x, double mu, double sigma) {
+        return (1. + std::erf(x / std::sqrt(2.) * sigma + mu)) / 2.;
+      }
+    }
 
     double black(option o, double r, double f, double t, double v, double k) {
       double d1 = (log(f/k) + v*v*t / 2.)/(v*sqrt(t));
