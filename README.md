@@ -6,7 +6,7 @@ Project is built with clang running c++17 and tested on a g++ version with c++17
 Other compilers may work too...
 
 The framework depends on:
-*  ~~eric Niebler's range-v3 0.9.0~~ not at the moment
+*  ~~Eric Niebler's range-v3 0.9.0~~ not at the moment
 *  Catch2 v2.9.2
 *  ~~kthohr/stats~~ not at the moment
 *  ~~kthohr/gcem~~ not at the moment
