@@ -1,5 +1,6 @@
 #include <iostream>
 #include <functional>
+#include <array>
 
 #include "market/buildmarket.h"
 #include "market/market.h"
@@ -48,11 +49,11 @@ int main (int argc, char* argv[]) {
   double geoPrice = asian::geomAsian(option::CALL, rate, fut, end, vol, strike, dt);
   std::cout << "Analytic geometric asian price: " << geoPrice << std::endl;
 
-  using sample_container_type = std::vector<std::array<double, 2u>>;
+  using sampleContainerType = std::vector<std::array<double, 2u>>;
   auto collector = [end, &asianCalls]() mutable -> std::array<double, 2u> {
     return asianCalls(end);
   };
-  auto paired_sample = vol::proc::sample<decltype(collector), sample_container_type >(collector, 10);
+  auto paired_sample = vol::proc::sample<decltype(collector), sampleContainerType >(collector, 10);
 
   auto summary = vol::stats::summary(
       paired_sample.begin(), 
