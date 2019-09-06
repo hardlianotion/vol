@@ -1,9 +1,7 @@
 
 #include <iostream>
-
+#include <array>
 #include <tuple>
-
-#include <range/v3/all.hpp>
 
 #include "catch2/catch.hpp"
 

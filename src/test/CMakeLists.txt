@@ -27,5 +27,5 @@ add_executable(
   utility-test.cpp
 )
 
-target_link_libraries(vol-tests Catch2::Catch2 vol range-v3)
+target_link_libraries(vol-tests Catch2::Catch2 vol)
 
