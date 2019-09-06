@@ -20,8 +20,6 @@ add_library(
   sim/simulation.cpp
 )
 
-target_link_libraries(vol range-v3)
-
 add_executable (
   vol-demo
 

@@ -14,12 +14,12 @@ SCENARIO ("Simulation pipelines are composed functions.", "[simulation]") {
   }
 
   WHEN("a generator is constructed") {
-    auto fn = vol::generator::normal(1, 1);
-    auto lfn = vol::generator::lognormal(1,2);
+    auto fn = vol::generator::normal(1., 1.);
+    auto lfn = vol::generator::lognormal(1.,2.);
 
     THEN("No two calls to the function are identical") {
-      CHECK(fn() != fn());
-      CHECK(lfn() != lfn());
+      CHECK_THAT(fn(), !Catch::WithinAbs(fn(), 1.e-6));
+      CHECK_THAT(lfn(), !Catch::WithinAbs(lfn(), 1.e-6));
     }
   }
 
@@ -28,10 +28,10 @@ SCENARIO ("Simulation pipelines are composed functions.", "[simulation]") {
     auto const2 = vol::generator::constant(2.0);
 
     THEN("each call to the generator is identical") {
-      CHECK(const1() == const1());
-      CHECK(const2() == const2());
-      CHECK(const1() == 1);
-      CHECK(const2() == 2);
+      CHECK_THAT(const1(), Catch::WithinAbs(const1(), 1.e-6));
+      CHECK_THAT(const2(), Catch::WithinAbs(const2(), 1.e-6));
+      CHECK_THAT(const1(), Catch::WithinAbs(1, 1.e-6));
+      CHECK_THAT(const2(), Catch::WithinAbs( 2, 1.e-6));
     }
   }
 

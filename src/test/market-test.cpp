@@ -70,12 +70,12 @@ SCENARIO ("Option contracts price respect invariants.", "[market]") {
     path_type shortLinPath = buildLinearPath(level, scale, begin, shortPathEnd, dt);
     
     THEN("the output is the average of the process samples over the period") {
-      CHECK( asian(linPath) == 6.0);
+      CHECK_THAT( asian(linPath), Catch::WithinAbs(6.0, 1.e-6));
       CHECK_THAT( asian(shortLinPath), Catch::WithinAbs(4.888889, 1e-5 ));
     }
 
     THEN("Underlying process samples are not contributed past expiry.") {
-      CHECK( asian(longLinPath) == 6.0 );
+      CHECK_THAT( asian(longLinPath), Catch::WithinAbs(6.0, 1.e-6));
     }
   }
 }

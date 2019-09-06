@@ -18,23 +18,23 @@ SCENARIO ("Simulation processes are composed lambdas.", "[process]") {
       sample.push_back(brownian_process(0.2));
       sample.push_back(brownian_process(0.4));
 
-      REQUIRE(sample.size() == 2u);
+      CHECK(sample.size() == 2u);
 
       sample.push_back(normal_process(4.5));
       
-      REQUIRE(sample.size() == 3u);
+      CHECK(sample.size() == 3u);
       
       double sum = std::accumulate(sample.begin(), sample.end(), 0.);
       
-      REQUIRE( sum != std::numeric_limits<double>::quiet_NaN() );
+      CHECK( sum != std::numeric_limits<double>::quiet_NaN() );
     } 
 
     THEN("each sample is different from the next sample") {
-      REQUIRE(brownian_process(0.2) != brownian_process(0.2));
-      REQUIRE(brownian_process(0.4) != brownian_process(0.2));
+      CHECK_THAT(brownian_process(0.2), !Catch::WithinAbs( brownian_process(0.2), 1.e-6));
+      CHECK_THAT(brownian_process(0.4), !Catch::WithinAbs( brownian_process(0.2), 1.e-6));
 
-      REQUIRE(normal_process(0.2) != normal_process(0.2));
-      REQUIRE(normal_process(0.4) != normal_process(0.2));
+      CHECK_THAT(normal_process(0.2), !Catch::WithinAbs( normal_process(0.2), 1.e-6));
+      CHECK_THAT(normal_process(0.4), !Catch::WithinAbs( normal_process(0.2), 1.e-6));
     }
   }
 

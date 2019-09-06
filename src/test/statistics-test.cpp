@@ -1,9 +1,7 @@
 
 #include <iostream>
-
+#include <array>
 #include <tuple>
-
-#include <range/v3/all.hpp>
 
 #include "catch2/catch.hpp"
 
@@ -19,9 +17,9 @@ SCENARIO ("samples are used to summarise simulations..", "[sample]") {
     THEN("sample_sums delivers sample size, mean and variance") {
       auto summary = variance(sample.begin(), sample.end());
 
-      CHECK( std::get<0>(summary) == 5u );
-      CHECK( std::get<1>(summary) == 2. );
-      CHECK( std::get<2>(summary) == 2.5 );
+      CHECK_THAT( std::get<0>(summary), Catch::WithinAbs( 5u, 1.e-6 ));
+      CHECK_THAT( std::get<1>(summary), Catch::WithinAbs( 2., 1.e-6 ));
+      CHECK_THAT( std::get<2>(summary), Catch::WithinAbs( 2.5, 1.e-6 ));
     }
   }
   
@@ -32,11 +30,11 @@ SCENARIO ("samples are used to summarise simulations..", "[sample]") {
       auto summary = covariance(sample_pair.begin(), sample_pair.end());
 
       CHECK( std::get<0>(summary) == 5u );
-      CHECK( std::get<1>(summary) == 2. );
-      CHECK( std::get<2>(summary) == 2. );
-      CHECK( std::get<3>(summary) == 2.5 );
-      CHECK( std::get<4>(summary) == -2.5 );
-      CHECK( std::get<5>(summary) == 2.5 );
+      CHECK_THAT( std::get<1>(summary), Catch::WithinAbs( 2., 1.e-6 ));
+      CHECK_THAT( std::get<2>(summary), Catch::WithinAbs( 2., 1.e-6 ));
+      CHECK_THAT( std::get<3>(summary), Catch::WithinAbs( 2.5, 1.e-6 ));
+      CHECK_THAT( std::get<4>(summary), Catch::WithinAbs( -2.5, 1.e-6 ));
+      CHECK_THAT( std::get<5>(summary), Catch::WithinAbs( 2.5, 1.e-6 ));
     }
 
     WHEN("a control variate is presented") {
@@ -45,8 +43,8 @@ SCENARIO ("samples are used to summarise simulations..", "[sample]") {
       THEN("we can calculate a mean and variance.") {
         auto result = summary(sample_pair.begin(), sample_pair.end(), c_mean);
 
-        CHECK(std::get<1>(result) == 1.9);
-        CHECK(std::get<2>(result) == 0.);
+        CHECK_THAT(std::get<1>(result), Catch::WithinAbs(1.9, 1.e-6));
+        CHECK_THAT(std::get<2>(result), Catch::WithinAbs(0., 1e-6));
       }
     }
   }
