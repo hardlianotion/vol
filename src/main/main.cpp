@@ -46,7 +46,6 @@ int main (int argc, char* argv[]) {
   std::cout << "built asian options that share an asset path." << std::endl;
   //calculate the geometric asian price
   double geoPrice = asian::geomAsian(option::CALL, rate, fut, end, vol, strike, dt);
-
   std::cout << "Analytic geometric asian price: " << geoPrice << std::endl;
 
   using sample_container_type = std::vector<std::array<double, 2u>>;

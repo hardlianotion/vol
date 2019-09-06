@@ -31,17 +31,15 @@ namespace vol::proc {
     return result;
   }
 
-    path_type 
+    auto
   buildNormPath(
     double mu, double vol, double begin, double end, double dt
   ) {
-    path_type result;
-    auto norm = vol::proc::norm(mu, vol);
-
-    for (auto t = begin; t < end; t += dt) {
-      result.push_back(std::make_pair(t, norm(t)));
-    }
-    return result;
+      auto n = norm(mu, vol);
+      return run_over<
+          decltype(n),
+          std::vector<pt_type>
+      >(n, begin, end, dt);
   }
 
    auto 
