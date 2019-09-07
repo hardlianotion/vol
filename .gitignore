@@ -1,5 +1,6 @@
-build
-cmake-build-debug
+Catch2
+build/*
 .tags
 *.swp
 .idea
+cmake-build-debug
