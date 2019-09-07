@@ -1,5 +1,5 @@
 #!/bin/sh
-declare -n var_name=cmake_generator
+declare -n cmake_generator=with default
 cmake_generator="Unix Makefiles"
 if [[ $# -ge 1  ]]; then
   echo 'usage: ./install-lite.sh <optional cmake-generator-name>'
