@@ -1,3 +1,5 @@
+#include <cmath>
+
 #include "market.h"
 #include "utility/utility.h"
 
@@ -28,10 +30,10 @@ namespace vol {
       double d1 = (log(f/k) + v*v*t / 2.)/(v*sqrt(t));
       switch(o) {
         case option::CALL:
-          return exp(-r*t)*stats::pnorm(d1, 0., 1.);
+          return exp(-r*t)* pnorm(d1, 0., 1.);
           break;
         case option::PUT:
-          return exp(-r*t)*stats::pnorm(d1, 0., 1.) - 1.;
+          return exp(-r*t) * pnorm(d1, 0., 1.) - 1.;
           break;
         default:
           return std::numeric_limits<double>::quiet_NaN();

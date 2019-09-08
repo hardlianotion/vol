@@ -3,7 +3,7 @@
 #include <exception>
 #include <memory>
 
-#include "stats.hpp"
+#include "utility/utility.h"
 
 
 namespace vol {
