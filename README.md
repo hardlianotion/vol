@@ -26,7 +26,7 @@ cd build
 cmake ..
 ```
 
-`build/src/vol-demo` runs ~~a simulation of an asian option price with control variate variance reduction~~ ...something...
+`build/src/vol-demo` runs a simulation of an asian option price with control variate variance reduction
 and 
 `build/test/vol-tests runs the available tests.
 
