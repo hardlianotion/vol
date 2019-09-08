@@ -7,8 +7,11 @@
 
 namespace vol {  
   
+
   namespace generator {
     
+    extern std::random_device rd; // storage is assigned in cpp file.
+
     template<typename gen_type, typename dist_type>
     auto create(dist_type&& adapter, std::seed_seq& seeds) {
       gen_type gen;
@@ -18,7 +21,6 @@ namespace vol {
 
     template<typename gen_type, typename dist_type>
     auto create(dist_type&& adapter) {
-      std::random_device rd{};
       gen_type gen(rd());
       return [adapter, gen]() mutable { return adapter(gen);};
     }

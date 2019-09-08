@@ -1,7 +1,3 @@
 #include "simulation.h"
 
-
-namespace vol {
-
-}
-
+std::random_device vol::generator::rd = std::random_device{};
