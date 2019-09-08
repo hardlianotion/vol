@@ -53,16 +53,18 @@ int main (int argc, char* argv[]) {
   auto collector = [end, &asianCalls]() mutable -> std::array<double, 2u> {
     return asianCalls(end);
   };
-  auto paired_sample = vol::proc::sample<decltype(collector), sampleContainerType >(collector, 10000);
-
-  auto summary = vol::stats::summary(
+  auto paired_sample = vol::proc::sample<decltype(collector), sampleContainerType >(collector, 1000000);
+  auto summary = vol::stats::covariance(paired_sample.begin(), paired_sample.end());
+  auto controlled_summary = vol::stats::summary(
       paired_sample.begin(), 
       paired_sample.end(), 
       geoPrice);
 
-  std::cout << " count = " << std::get<0>(summary)
-             << ", mean = " << std::get<1>(summary)
-             << ", variance = "<< std::get<2>(summary) << std::endl; 
+  std::cout << " count = " << std::get<0>(controlled_summary)
+            << " mean " << std::get<1>(summary)
+            << " variance " << std::get<3>(summary)
+             << ", controlled mean = " << std::get<1>(controlled_summary)
+             << ", controlled variance = "<< std::get<2>(controlled_summary) << std::endl;
   return 0;
 }
 

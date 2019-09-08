@@ -23,7 +23,7 @@ SCENARIO ("samples are used to summarise simulations..", "[sample]") {
     }
   }
   
-  WHEN("a 2d sample is constructed") {
+  WHEN("a perfectly negatively correlated 2d sample is constructed") {
     using namespace vol::stats;
     std::vector<std::array<double, 2>> sample_pair = {{0., 4.}, {1., 3.}, {2., 2.}, {3., 1.}, {4., 0.}}; 
     THEN("sample_sums delivers sample size, mean and variance") {
@@ -45,6 +45,32 @@ SCENARIO ("samples are used to summarise simulations..", "[sample]") {
 
         CHECK_THAT(std::get<1>(result), Catch::WithinAbs(1.9, 1.e-6));
         CHECK_THAT(std::get<2>(result), Catch::WithinAbs(0., 1e-6));
+      }
+    }
+  }
+
+  WHEN("an imperfectly  correlated 2d sample is constructed") {
+    using namespace vol::stats;
+    std::vector<std::array<double, 2>> sample_pair = {{0., 0.}, {1., 3.}, {2., 4.}, {3., 0.}, {4., 8.}};
+    THEN("sample_sums delivers sample size, mean and variance") {
+      auto summary = covariance(sample_pair.begin(), sample_pair.end());
+
+      CHECK( std::get<0>(summary) == 5u );
+      CHECK_THAT( std::get<1>(summary), Catch::WithinAbs( 2., 1.e-6 ));
+      CHECK_THAT( std::get<2>(summary), Catch::WithinAbs( 3., 1.e-6 ));
+      CHECK_THAT( std::get<3>(summary), Catch::WithinAbs( 2.5, 1.e-6 ));
+      CHECK_THAT( std::get<4>(summary), Catch::WithinAbs( 3.25, 1.e-6 ));
+      CHECK_THAT( std::get<5>(summary), Catch::WithinAbs( 11., 1.e-6 ));
+    }
+
+    WHEN("a control variate is presented") {
+      double c_mean = 2.1;
+
+      THEN("we can calculate a mean and variance.") {
+        auto result = summary(sample_pair.begin(), sample_pair.end(), c_mean);
+
+        CHECK_THAT(std::get<1>(result), Catch::WithinAbs(1.4422243, 1.e-6));
+        CHECK_THAT(std::get<2>(result), Catch::WithinAbs(2.6966205, 1e-6));
       }
     }
   }

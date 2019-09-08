@@ -2,6 +2,7 @@
 
 #include <random>
 #include <tuple>
+#include <iostream>
 
 
 namespace vol {  
@@ -152,7 +153,9 @@ namespace vol {
       using namespace std;
       forward_iterator ptr = begin;
       auto cov = covariance(ptr, end);
-      double corr = get<4>(cov) / get<5>(cov);
+      double corr = get<4>(cov) / (sqrt(get<3>(cov) * get<5>(cov)));
+
+      std::cout << "mean1: "  << get<1>(cov) << " mean2: "  << get<2>(cov) << " correlation: " << corr << std::endl;
 
       std::vector<double> control_sample = {};
       transform(begin, end, back_inserter(control_sample), 
