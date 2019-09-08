@@ -53,7 +53,7 @@ int main (int argc, char* argv[]) {
   auto collector = [end, &asianCalls]() mutable -> std::array<double, 2u> {
     return asianCalls(end);
   };
-  auto paired_sample = vol::proc::sample<decltype(collector), sampleContainerType >(collector, 10);
+  auto paired_sample = vol::proc::sample<decltype(collector), sampleContainerType >(collector, 10000);
 
   auto summary = vol::stats::summary(
       paired_sample.begin(), 

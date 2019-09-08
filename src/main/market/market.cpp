@@ -1,4 +1,5 @@
 #include "market.h"
+#include "utility/utility.h"
 
 namespace vol {
   namespace market::vanilla {
@@ -19,7 +20,6 @@ namespace vol {
           return exp(-r*t)*(k*pnorm(-d2, 0., 1.) - f*pnorm(-d1, 0., 1.));
           break;
         default:
-          std::cout << "NAN CALC" << std::endl;
           return std::numeric_limits<double>::quiet_NaN();
       }
     }

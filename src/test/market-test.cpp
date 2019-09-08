@@ -90,12 +90,12 @@ SCENARIO ("Market contracts are driven by stochastic processes..", "[market]") {
 
     double begin = 0.;
     double end = 10.;
-    double dt = 1.;
+    double dt = 0.5;
 
-    double level = 1.;
+    double level = 1.5;
     double strike = 1.;
-    double mu = 0.1;
-    double vol= 0.4;
+    double mu = 0.05;
+    double vol= 0.2;
 
     auto asian = buildAsian(begin, end, dt);
 
@@ -125,10 +125,8 @@ SCENARIO ("Market contracts are driven by stochastic processes..", "[market]") {
     }
 
     auto payoff = vanilla::payoff(option::CALL, strike);
-    auto asianNormCalls = vol::utility::compose(payoff, asianNorm);
-    auto asianLogNormCalls = vol::utility::compose(payoff, asianNorm);
+    auto asianLogNormCalls = vol::utility::compose(payoff, asianLogNorm);
     THEN("successive calculations from vanilla processes are different.") {
-      CHECK_THAT( asianNormCalls(end), !Catch::WithinAbs(asianNormCalls(end), 1.e-6));
       CHECK_THAT( asianLogNormCalls(end), !Catch::WithinAbs(asianLogNormCalls(end), 1.e-6));
     }
   }

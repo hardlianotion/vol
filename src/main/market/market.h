@@ -1,14 +1,19 @@
 #pragma once
-#include <iostream>
 #include <sstream>
 #include <exception>
+#include <memory>
 
 #include "stats.hpp"
-#include "utility/interval.h"
 
 
 namespace vol {
   enum class option {CALL, PUT};
+
+  struct Option {
+    explicit Option(option type): type_(type) {}
+    option type_;
+  };
+
   namespace market::vanilla {
 
     double black(option o, double r, double f, double t, double v, double k);
@@ -24,8 +29,9 @@ namespace vol {
     double rho(option o, double r, double f, double t, double v, double k);
 
     inline auto payoff(option o, double k) {
-      return [o, k](double s) {
-        switch(o) {
+      auto impl = std::make_shared<option>(o);
+      return [impl, k](double s) {
+        switch(*impl) {
           case option::CALL:
             return std::max(s - k, 0.);
             break;
@@ -40,10 +46,6 @@ namespace vol {
   }
 
   namespace market::asian {
-
-    typedef utility::titerator<double> iterator;
-    typedef utility::interval<double> interval_d;
-    
     /**
      * this is the analytic price of a geometric asian option.  
      * 
