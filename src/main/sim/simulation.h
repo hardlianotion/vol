@@ -162,5 +162,22 @@ namespace vol {
       
       return variance(control_sample.begin(), control_sample.end());
     }
+
+    template<
+      typename forward_iterator,
+      typename container_type,
+      typename mapper_type
+    >
+    void histogram(
+      const forward_iterator& begin,
+      const forward_iterator& end,
+      container_type& container,
+      const mapper_type& bin_mapper
+    ) {
+      for(auto iter = begin; iter != end; ++iter) {
+        bin_mapper(*iter);
+      }
+      return container;
+    }
   }
 }

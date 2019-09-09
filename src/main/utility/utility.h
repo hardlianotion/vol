@@ -14,8 +14,7 @@ namespace vol::utility {
   template<typename iterator, typename back_iter, typename T>
   void transform(iterator begin, iterator end, back_iter back_ptr, T data) {
     for (iterator iter = begin; iter != end; ++iter) {
-      auto test = (*iter)(data);
-      *(back_ptr) = test;
+      *(back_ptr) = (*iter)(data);
       ++back_ptr;
     }
   }
