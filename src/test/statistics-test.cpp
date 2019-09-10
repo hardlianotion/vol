@@ -95,8 +95,8 @@ SCENARIO("histogram provides quantile summary of a sample", "[histogram]") {
                                   8., 9., 5., 5., 1., 3., 8.,
                                   6., 0., 0., 2., 3., 4., 7.};
 
-    auto inc_request = histogram_request(acc, quant, hist_type::INCREMENTAL);
-    auto cum_request = histogram_request(acc, quant, hist_type::CUMULATIVE);
+    auto inc_request = histogram_request(acc, quant, hist_type::INCREMENTAL, std::optional(std::make_pair(0., 10.)));
+    auto cum_request = histogram_request(acc, quant, hist_type::CUMULATIVE, std::optional(std::make_pair(0., 10.)));
 
     auto hist_sketch = build_histogram_sketch(inc_request, sample);
     std::cout << "incremental: " << std::endl;
@@ -113,6 +113,7 @@ SCENARIO("histogram provides quantile summary of a sample", "[histogram]") {
       auto iter = hist.begin();
 
       for (auto last = iter++; iter != hist.end(); last = iter++) {
+        std::cout << "iter: " << iter->quantile_ << " last: " << last->quantile_ << std::endl;
         CHECK(fabs(iter->quantile_ - last->quantile_) < 1. / quant);
       }
     }

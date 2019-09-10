@@ -121,15 +121,18 @@ namespace vol::stats {
   enum hist_type {INCREMENTAL, CUMULATIVE, QUANTILE};
 
   struct histogram_request {
+    typedef std::pair<double, double> bound_type;
     const double accuracy_;
     const double quantum_;
     const hist_type type_;
+    const std::optional<bound_type> bounds_;
 
     histogram_request(
         const histogram_request& request
     ): accuracy_(request.accuracy_),
        quantum_(request.quantum_),
-       type_(request.type_) {}
+       type_(request.type_),
+       bounds_(request.bounds_){}
 
     histogram_request(
         const double accuracy,
@@ -137,7 +140,19 @@ namespace vol::stats {
         const hist_type type
     ): accuracy_(accuracy),
        quantum_(quantum),
-       type_(type) {}
+       type_(type),
+       bounds_(std::nullopt){}
+
+    histogram_request(
+        const double accuracy,
+        const double quantum,
+        const hist_type type,
+        const std::optional<bound_type> bounds
+    ): accuracy_(accuracy),
+       quantum_(quantum),
+       type_(type),
+       bounds_(bounds){}
+
   };
 
   struct histogram_datum {
@@ -193,7 +208,8 @@ namespace vol::stats {
     const histogram_sketch& sketch
   ) {
     double total = std::get<1>(sketch);
-    double increment = request.quantum_ * total;
+
+    double increment = request.quantum_ * (request.bounds_ ? (request.bounds_->second - request.bounds_->first) : total);
     double current_increment = increment;
     double current_gamma = (1. + std::get<0>(sketch)) / (1. - std::get<0>(sketch));
     double gamma = current_gamma;
@@ -201,21 +217,35 @@ namespace vol::stats {
     std::vector<histogram_datum> result(static_cast<size_t>(1. / increment + 0.5));
 
     size_t count = 0u;
-    for(auto item: sketch_data) {
-      if (count + item.second >= current_increment) {
+    for(auto iter = sketch_data.begin(); iter != sketch_data.end(); ++iter) {
+      std::cout << "ptr " << iter->first << ", bde: " << current_increment << std::endl;
+      if (iter->first >= current_increment) {
         result.emplace_back(count, current_increment / total);
         current_increment += increment;
-        count += item.second;
-        while(count >= current_increment) {
-          result.emplace_back(count, current_increment / total);
-          current_increment += increment;
-        }
+        count += iter->second;
+//        while(count >= current_increment) {
+//          result.emplace_back(count, current_increment / total);
+//          current_increment += increment;
+//        }
       } else {
-        count += item.second;
+        count += iter->second;
       }
     }
 
     result.emplace_back(count, current_increment / total);
+
+    std::cout << "result sz: " << result.size() << std::endl;
+
+    if(request.type_ == hist_type::INCREMENTAL) {
+      auto result_copy = result;
+      result.clear();
+      count = 0u;
+      for(auto item: result_copy) {
+        result.emplace_back(item.count_ - count, item.quantile_);
+        count = item.count_;
+      }
+    }
+
     for (auto item: result) {
       std::cout << "q: " << item.quantile_ << ", c: " << item.count_ << std::endl;
     }
