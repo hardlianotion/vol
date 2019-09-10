@@ -8,6 +8,7 @@
 #include "sim/process.h"
 #include "sim/simulation.h"
 #include "utility/lambda.h"
+#include "stats/statistics.h"
 
 
 int main (int argc, char* argv[]) {
